@@ -1,18 +1,20 @@
 import streamlit as st
+
 from utils import load_data
 ## App title
 
-st.set_page_config(page_title='Chess Players Analysis', layout='wide')
+# st.set_page_config(page_title='Chess Players Analysis', layout='wide')
 
-st.title('Chess Players Analytics Dashboard')
+# st.title('Chess Players Analytics Dashboard')
 
 # # Sidebar for Navigation
-page = st.sidebar.selectbox(
-     "Select Dashboard",
-     ("Overview", "Dashboard 1", "Dashboard 2", "Dashboard 3", "Dashboard 4"))
+# page = st.sidebar.selectbox(
+#      "Select Dashboard",
+#      ("Overview", "Dashboard 1", "Dashboard 2", "Dashboard 3", "Dashboard 4"))
 
 
 # Example: Fetch top players from the "Open" group
+
 query = """
     SELECT name, rating 
     FROM project.players 
@@ -20,9 +22,9 @@ query = """
     ORDER BY Rating DESC
     LIMIT 10;
 """
-
 df = load_data(query)
-print(df)
+print(df.head())
+
 
 
 
