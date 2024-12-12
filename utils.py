@@ -1,9 +1,10 @@
 import pandas as pd
-from sqlalchemy import create_engine
-
-import pandas as pd
+import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
+import plotly.express as px
+import plotly.graph_objects as go
+from typing import Optional, Union
 
 
 def get_connection_url() -> str:
@@ -49,16 +50,115 @@ def load_data(query: str) -> pd.DataFrame:
         with engine.connect() as conn:
             print("Connection successful!")
             # Execute the query
-            return pd.read_sql_query(query, conn)
+            df = pd.read_sql_query(query, conn)
+            df["date"] = pd.to_datetime(df["date"])
+            return df
     except SQLAlchemyError as e:
         raise RuntimeError(f"Database connection or query execution failed: {e}")
 
+from typing import Optional, Dict
+
+def customize_title_charts(
+    text: str,
+    y: float = 0.9,
+    x: float = 0.5,
+    xanchor: str = "center",
+    yanchor: str = "top",
+    font: Optional[Dict[str, Union[str, int]]] = None,
+    subtitle: Optional[Dict[str, Union[str, int]]] = None,
+) -> Dict[str, Union[str, float, Dict]]:
+    """
+    Customize the title configuration for a Plotly chart.
+
+    Parameters:
+        text (str): The main title text.
+        y (float): Vertical position of the title (default: 0.9).
+        x (float): Horizontal position of the title (default: 0.5).
+        xanchor (str): Horizontal anchor point ('center', 'left', 'right').
+        yanchor (str): Vertical anchor point ('top', 'middle', 'bottom').
+        font (Optional[Dict]): Font configuration for the title (e.g., size, family).
+        subtitle (Optional[Dict]): Subtitle configuration (e.g., text, font).
+
+    Returns:
+        Dict: A dictionary containing the title configuration.
+    """
+    # Validate xanchor and yanchor values
+    if xanchor not in {"center", "left", "right"}:
+        raise ValueError("xanchor must be 'center', 'left', or 'right'")
+    if yanchor not in {"top", "middle", "bottom"}:
+        raise ValueError("yanchor must be 'top', 'middle', or 'bottom'")
+
+    title = {
+        "text": text,
+        "y": y,
+        "x": x,
+        "xanchor": xanchor,
+        "yanchor": yanchor,
+        "font": font if font else {"size": 20, "family": "Arial, sans-serif"},
+    }
+
+    if subtitle:
+        title["subtitle"] = subtitle
+
+    return title
 
 
+def customize_plotly_charts(
+    fig: go.Figure,   
+    barmode: Optional[str] = None,
+    xaxis_title: str = "",
+    yaxis_title: str = "",
+    legend_title: str = "",
+    bargap: Optional[float] = None,
+    width: int = 800,
+    height: int = 600,
+    title: Optional[dict] = None,
+    font: Optional[dict] = None,
+    tickvals: Optional[np.ndarray] = None,
+    ticktext: Optional[np.ndarray] = None,
+    tickangle: int = 0,
+    **kwargs,
+) -> go.Figure:
+    """
+    Customize the layout of a Plotly figure.
 
+    Parameters:
+        fig (go.Figure): The Plotly figure to customize.
+        type_fig (Optional[str]): Type of figure ('bar', etc.).
+        barmode (Optional[str]): Barmode for bar plots ('group', 'stack', 'overlay').
+        xaxis_title (str): Title for the x-axis.
+        yaxis_title (str): Title for the y-axis.
+        legend_title (str): Title for the legend.
+        bargap (Optional[float]): Spacing between bars (for bar plots).
+        width (int): Width of the plot.
+        height (int): Height of the plot.
+        title (Optional[dict]): Title configuration for the plot.
+        font (Optional[dict]): Font configuration for the plot.
+        tickvals (Optional[np.ndarray]): Custom tick values for the x-axis.
+        ticktext (Optional[np.ndarray]): Custom tick text for the x-axis.
+        tickangle (int): Angle for rotating x-axis tick labels.
+        **kwargs: Additional keyword arguments for layout customization.
 
+    Returns:
+        go.Figure: The customized Plotly figure.
+    """
+    layout_updates = {
+        "xaxis_title": xaxis_title,
+        "yaxis_title": yaxis_title,
+        "legend_title": legend_title,
+        "width": width,
+        "height": height,
+        "title": title,
+        "font": font,
+        "barmode": barmode,
+        "bargap": bargap,
+        **kwargs,
+    }
+    fig.update_layout(**layout_updates)
 
+    # Update x-axis properties
+    if tickvals is not None and ticktext is not None:
+        fig.update_xaxes(tickvals=tickvals, ticktext=ticktext, tickangle=tickangle)
 
-
-
+    return fig
 
