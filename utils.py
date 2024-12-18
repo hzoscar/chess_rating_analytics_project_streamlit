@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Optional, Union
+from typing import Optional, Dict
 
 
 def get_connection_url() -> str:
@@ -56,7 +57,6 @@ def load_data(query: str) -> pd.DataFrame:
     except SQLAlchemyError as e:
         raise RuntimeError(f"Database connection or query execution failed: {e}")
 
-from typing import Optional, Dict
 
 def customize_title_charts(
     text: str,
