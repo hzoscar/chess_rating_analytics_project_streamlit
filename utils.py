@@ -6,7 +6,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Optional, Union
 from typing import Optional, Dict
-
+import streamlit as st
+import time
 
 def get_connection_url() -> str:
     """
@@ -56,6 +57,64 @@ def load_data(query: str) -> pd.DataFrame:
             return df
     except SQLAlchemyError as e:
         raise RuntimeError(f"Database connection or query execution failed: {e}")
+
+@st.cache_data
+def bubble_chart(query):
+    
+    df = load_data(query)   
+    
+    df["date"] = pd.to_datetime(df["date"])
+    df['date'] = df["date"].dt.strftime("%Y-%m")
+
+    # Custom color sequence
+    custom_color_sequence = ["cornflowerblue", "olivedrab", "maroon", "chocolate", "darkkhaki"]
+
+    # Create the scatter plot
+    fig = px.scatter(
+        df,
+        x="count of title players",
+        y="median of rating",
+        animation_frame="date",
+        animation_group="country",
+        size="count of Gm",
+        hover_name="country",
+        color="continent",
+        range_y=[2000, 2700],
+        range_x=[0,100],
+        color_discrete_sequence=custom_color_sequence,
+        width=800,
+        height=400
+    )
+
+    # Update the layout to include a title and customize axis fonts
+    fig.update_layout(
+        title={
+            'text': "Median Rating vs Amount of Active Titled Players <br> per Country Over Time <br>",
+            'y': 0.94,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': dict(size=20)
+        },
+        xaxis=dict(
+            title="Number of Title Players",
+            titlefont=dict(size=14, family="Courier New, monospace"),
+            tickfont=dict(size=12, family="Arial")
+        ),
+        yaxis=dict(
+            title="Median Rating",
+            titlefont=dict(size=14, family="Courier New, monospace"),
+            tickfont=dict(size=12, family="Arial")
+        ),
+        font=dict(family="Courier New, monospace")
+    )
+    
+    return fig
+
+
+
+
+
 
 
 def customize_title_charts(

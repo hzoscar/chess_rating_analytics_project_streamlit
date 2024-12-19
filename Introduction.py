@@ -1,22 +1,9 @@
 import streamlit as st
-from utils import load_data
-from utils import customize_title_charts
-from utils import customize_plotly_charts
+from utils import bubble_chart
 import warnings
 warnings.filterwarnings('ignore')
-import pandas as pd
-import plotly.express as px
-import os
-import re
-import plotly.graph_objects as go
-import numpy as np
-import bar_chart_race as bcr
-import time
 
-
-# query
-
-    # Fetch top players from the "Open" group
+# query 
 query = """
         SELECT 
         c.country,
@@ -43,67 +30,13 @@ st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
 st.markdown(""" Here is a taste of what you'll find here: This interactive bubble plot visualizes the relationship between the median Elo rating
                     and the number of active titled players for different countries **over the last 10 years**. Each bubble
                     represents a country and varies in size according to the number of Grandmasters (GM) in that country.
-                    **It's important to mention that the data contains only the top 100 strongest players from each country by rating.** 
+                    **It's important to mention that the data contains only the top 100 strongest players by rating from each country.** 
                         
                         """)
-# Show a spinner during a process
-# with st.spinner(text="In progress"):
-#     time.sleep(3)
-#     st.success("Done")
-
-# Show and update progress bar
-bar = st.progress(50)
-time.sleep(5)
-bar.progress(100)
 
 with st.container(border=True):
     
-    df = load_data(query)
-    df["date"] = pd.to_datetime(df["date"])
-    df['date'] = df["date"].dt.strftime("%Y-%m")
-
-    # Custom color sequence
-    custom_color_sequence = ["cornflowerblue", "olivedrab", "maroon", "chocolate", "darkkhaki"]
-
-    # Create the scatter plot
-    fig = px.scatter(
-        df,
-        x="count of title players",
-        y="median of rating",
-        animation_frame="date",
-        animation_group="country",
-        size="count of Gm",
-        hover_name="country",
-        color="continent",
-        range_y=[2000, 2700],
-        range_x=[0,100],
-        color_discrete_sequence=custom_color_sequence,
-        width=800,
-        height=400
-    )
-
-    # Update the layout to include a title and customize axis fonts
-    fig.update_layout(
-        title={
-            'text': "Median Rating vs Amount of Active Titled Players <br> per Country Over Time <br>",
-            'y': 0.94,
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': dict(size=20)
-        },
-        xaxis=dict(
-            title="Number of Title Players",
-            titlefont=dict(size=14, family="Courier New, monospace"),
-            tickfont=dict(size=12, family="Arial")
-        ),
-        yaxis=dict(
-            title="Median Rating",
-            titlefont=dict(size=14, family="Courier New, monospace"),
-            tickfont=dict(size=12, family="Arial")
-        ),
-        font=dict(family="Courier New, monospace")
-    )
+    fig = bubble_chart(query)
 
     st.plotly_chart(fig,use_container_width=True)
     
@@ -181,60 +114,3 @@ with expand:
     and Junior Women. (For this project, all queries use `group_index='Open').
     - `ongoing_date`: The date the data was recorded.
     """)
-
-
-
-#st.caption("This is a string that explains something above.")
-#st.caption("A caption with _italics_ :blue[colors] and emojis :sunglasses:")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Sidebar for Navigation
-# page = st.sidebar.selectbox(
-#      "Select Dashboard",
-#      ("Overview", "Dashboard 1", "Dashboard 2", "Dashboard 3", "Dashboard 4"))
-
-# # Example: Fetch top players from the "Open" group
-
-# query = """
-#     SELECT name, rating 
-#     FROM project.players 
-#     WHERE Group_index = 'O' AND date = '01-11-2024' AND  activity_status = 'a'
-#     ORDER BY Rating DESC
-#     LIMIT 10;
-# """
-# df = load_data(query)
-# print(df.head())
-
-
-
-# Load the selected dashboard
-# if page == "Dashboard 1":
-#     dashboard_1.show()
-# elif page == "Dashboard 2":
-#     dashboard_2.show()
-# elif page == "Dashboard 3":
-#     dashboard_3.show()
-# elif page == "Dashboard 4":
-#     dashboard_4.show()
-# else:
-#     st.write("Welcome to the Chess Analytics App! Select a dashboard from the sidebar.")
