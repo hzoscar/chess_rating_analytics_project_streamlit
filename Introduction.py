@@ -36,7 +36,7 @@ st.markdown(""" Here is a taste of what you'll find here: This interactive bubbl
 
 with st.container(border=True):
     
-    fig = bubble_chart(query)
+    fig = bubble_chart(query= query, text= "Median Rating vs Amount of Active Titled Players <br> per Country Over Time <br>")
 
     st.plotly_chart(fig,use_container_width=True)
     

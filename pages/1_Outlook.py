@@ -1,14 +1,17 @@
 import streamlit as st
 from utils import load_data
-from utils import customize_title_charts
-from utils import customize_plotly_charts
+from utils import filter_gender
+from utils import filter_activity_status
+from utils import filter_continents
+from utils import gender_bar_chart
+from utils import activity_status_bar_chart
+from utils import continents_line_chart
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
-
 
 st.set_page_config(layout="wide")
 # Title and subtitle
@@ -17,50 +20,9 @@ st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
 
 st.sidebar.title('Filters')
 
-option_map = {
-    'F': "Women",
-    'M': 'Men'
-    }
-#st.sidebar.header("Gender")
-st.sidebar.markdown("""
-<style>
-#gender-header {
-    margin-bottom: -100px; /* Adjust the negative value to reduce space */
-}
-</style>
-<h3 id="gender-header">Gender</h3>
-""", unsafe_allow_html=True)
- 
-selected_sex=st.sidebar.multiselect(label="Gender",
-                          options=option_map.keys(),
-                          format_func= lambda option:option_map[option], 
-                          #selection_mode="multi",
-                          default=option_map.keys(),
-                          label_visibility="hidden")
-#st.sidebar.markdown( f"Your selected option: {None if pill_sex is None else [option_map[value] for value in pill_sex]} ")
-
-option_map_1 = {
-    'i': "inactive",
-    'a': 'active'
-    }
-#st.sidebar.header("Gender")
-st.sidebar.markdown("""
-<style>
-#activity_status-header {
-    margin-bottom: -100px; /* Adjust the negative value to reduce space */
-}
-</style>
-<h3 id="activity_Status-header">Activity Status</h3>
-""", unsafe_allow_html=True)
- 
-selected_activity_Status=st.sidebar.multiselect(label="Activity Status",
-                          options=option_map_1.keys(),
-                          format_func= lambda option:option_map_1[option], 
-                          #selection_mode="multi",
-                          default=option_map_1.keys(),
-                          label_visibility="hidden")
-
-
+option_map_gender, gender_header, selected_gender = filter_gender()
+option_map_activity_status, activity_status_header, selected_activity_Status = filter_activity_status()
+option_continents, activity_status_header, selected_continents = filter_continents()    
 
 # Base query components
 with_clause = """
@@ -92,27 +54,14 @@ WITH pre_aggregations AS (
 """
 filters = ["EXTRACT(MONTH FROM muomv.ongoing_date) = (SELECT get_last_month())"]
 
-# # Add dynamic filters
-# if selected_continent:
-#     filters.append("c.continent = %s")
-#     params.append(selected_continent)
-
-# if min_rating:
-#     filters.append("muomv.rating >= %s")
-#     params.append(min_rating)
-
-# if max_rating:
-#     filters.append("muomv.rating <= %s")
-#     params.append(max_rating)
-
-if selected_sex:
+if selected_gender:
     
-    if len(selected_sex) > 1:
+    if len(selected_gender) > 1:
     
-        filters.append(f"sex in {tuple(selected_sex)}")
+        filters.append(f"sex in {tuple(selected_gender)}")
         
     else:
-        filters.append(f"sex in ('{selected_sex[0]}')")
+        filters.append(f"sex in ('{selected_gender[0]}')")
 
 if selected_activity_Status:
     
@@ -122,7 +71,15 @@ if selected_activity_Status:
         
     else:
         filters.append(f"activity_status in ('{selected_activity_Status[0]}')")
+
+if selected_continents:
     
+    if len(selected_continents) > 1:
+    
+        filters.append(f"continent in {tuple(selected_continents)}")
+        
+    else:
+        filters.append(f"continent in ('{selected_continents[0]}')")
 
 # Add the WHERE clause if there are filters
 if filters:
@@ -158,126 +115,66 @@ SELECT
 FROM pre_aggregations
 ORDER BY ongoing_date ASC
 """
-st.write(query)
+#st.write(query)
 
 df = load_data(query)
 
-# Generate the tick values and labels
-tick_vals = df["date"]
-tick_labels = df["date"].dt.strftime("%Y-%m")
-
-# Create the figure
-fig_sex = go.Figure()
-
-# Add the first bar trace (e.g., Men) with custom color
-fig_sex.add_trace(go.Bar(
-    x=df["date"],
-    y=df["percentage_men"].round(2),
-    name="Men",
-    marker_color="cadetblue"  # Custom color
-))
-
-# Add the second bar trace (e.g., Women) with custom color
-fig_sex.add_trace(go.Bar(
-    x=df["date"],
-    y=df["percentage_women"].round(2),
-    name="Women",
-    marker_color="goldenrod"  # Custom color
-))
-
-# Customize the layout
-fig_sex.update_layout(
-    barmode='stack',  # Options: 'group', 'stack', 'overlay'
-    xaxis_title="Date",
-    yaxis_title="Percentage",
-    legend_title="Category",
-    bargap=0.3,  # Adjust spacing between bars (lower = closer)
-    width=800,
-    height=400,
-    title={
-        'text': "Trends in Gender Distribution Among Top Players",
-        'y':0.9,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top',
-        'font':dict(size=20),
-        'subtitle':dict(
+fig_gender = gender_bar_chart(
+    df = df,
+    text=  "Trends in Gender Distribution Among Top Players",
+    subtitle= dict(
                 text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
                 font=dict(color="gray", size=12))
-        },
-    font=dict(
-        family="Courier New, monospace",
-        size=12)
-)
-
-# Update x-axis to display custom tick labels
-fig_sex.update_xaxes(
-    tickvals=tick_vals,
-    ticktext=tick_labels,
-    tickangle=45  # Rotate labels for better readability
-)
+    )
 
 
-# Example: Ensure your 'date' column is in the correct format
-df["date"] = pd.to_datetime(df["date"])
-
-# Generate the tick values and labels
-tick_vals = df["date"]
-tick_labels = df["date"].dt.strftime("%Y-%m")
-
-# Create the figure
-fig_status_activity = go.Figure()
-
-# Add the first bar trace (e.g., Men)
-fig_status_activity.add_trace(go.Bar(x=df["date"],
-                     y=df["percentage_active_players"].round(2),
-                     name="active_players",
-                     marker_color='steelblue'))
-
-# Add the second bar trace (e.g., Women)
-fig_status_activity.add_trace(go.Bar(x=df["date"],
-                     y=df["percentage_inactive_players"].round(2),
-                     name="inactive_players",
-                     marker_color='rosybrown'))
-
-# Customize the layout
-fig_status_activity.update_layout(
-    barmode='stack',  # Options: 'group', 'stack', 'overlay'
-    xaxis_title="Date",
-    yaxis_title="Percentage",
-    legend_title="Category",
-    width=800,
-    height=400,
-    title={
-        'text': "Percentage of activity status of players Over Time",
-        'y':0.9,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top',
-        'font':dict(size=20),
-        'subtitle':dict(
+fig_status_activity = activity_status_bar_chart(
+    df=df,
+    text="Percentage of activity status of players Over Time",
+    subtitle=dict(
                  text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
                 font=dict(color="gray", size=12))
-        },
-    font=dict(
-        family="Courier New, monospace",
-        size=12)
-)
-# Update x-axis to display custom tick labels
-fig_status_activity.update_xaxes(
-    tickvals=tick_vals,
-    ticktext=tick_labels,
-    tickangle=45  # Rotate labels for better readability
-)
+    )
+
+fig_continents = continents_line_chart(
+    df=df,
+    selected_continents=selected_continents,
+    text="Participation of Players by Continent Over Time",
+    subtitle= dict(
+                 text="Percentages of top 100 players per country<br> segmented by continent over the last 10 years <br>",
+                font=dict(
+                    color="gray",
+                    size=12))
+            )
 
 
+placeholder = st.container()
 
-
-col1, col2 = st.columns(2)
-
-with col1:
+with placeholder:
     
-    st.plotly_chart(fig_sex,use_container_width=True)
+    if not(selected_gender) or not(selected_activity_Status) or not(selected_continents):
+        placeholder.header('Each filter has to have at least one option selected.')
+        
+        if not(selected_gender):                            
+            placeholder.subheader('Filter Gender is empty') 
+                
+        elif not(selected_activity_Status):                
+            placeholder.subheader('Filter Activity Status is empty')
+        
+        elif not(selected_continents):
+            placeholder.subheader('Filter Continents is empty')
+            
+    else:
+            
+        col1, col2 = st.columns(2)
 
-with col2:
-    st.plotly_chart(fig_status_activity,use_container_width=True)
+        with col1:           
+              
+            st.plotly_chart(fig_gender,use_container_width=True)
+            st.plotly_chart(fig_continents, use_container_width=True)
+
+        with col2:
+            
+            st.plotly_chart(fig_status_activity,use_container_width=True)
+    
+   
