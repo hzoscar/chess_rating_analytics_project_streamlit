@@ -311,23 +311,76 @@ def continents_line_chart(
     return fig_continents
 
 
+def title_line_chart(
+    df: pd.DataFrame,
+    selected_title: list,
+    text: str,
+    subtitle: dict)-> go.Figure:
+
+    option_title = ['GM', 'NT', 'other_titles']
+    
+    # Create a set of columns to exclude based on non-selected title
+    not_selected = {option.lower() for option in option_title if option not in selected_title}
+
+    # Filter columns that do not end with any of the `not_selected` values
+    columns_to_consider = [col for col in df.columns if not any(col.endswith(ns) for ns in not_selected)]
+    
+    df = df[columns_to_consider]
+    
+    # Generate the tick values and labels
+    tick_vals = df["date"]
+    tick_labels = df["date"].dt.strftime("%Y-%m")
+
+    fig_title = go.Figure()
+
+    if 'GM' in selected_title:
+        
+        fig_title.add_trace(go.Scatter(x=df["date"],
+                                y=df["percentage_gm"],
+                                name="Grandmaster",
+                                marker_color="tan")) # royalblue
+
+    if 'other_titles' in selected_title:
+        
+        fig_title.add_trace(go.Scatter(x=df["date"],
+                                y=df["percentage_other_titles"],
+                                name="Other Titles",
+                                marker_color="darkslategrey")) # mediumaquamarine
+        
+    if 'NT' in selected_title:
+
+        fig_title.add_trace(go.Scatter(x=df["date"],
+                                y=df["percentage_nt"],
+                                name="No Title",
+                                marker_color="sienna"))# gold                    #here
+
+    # Customize the layout
+    fig_title.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Percentage",
+        legend_title="Category",
+        width=800,
+        height=400,
+        title= customize_title_charts(
+            text=text,
+            subtitle=subtitle        ),
+        font=dict(
+            family="Courier New, monospace",
+            size=12)           
+    )
+    fig_title.update_xaxes(
+        tickvals=tick_vals,
+        ticktext=tick_labels,
+        tickangle=45  # Rotate labels for better readability
+    )
+
+    return fig_title
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+###################################################
+# Filters
+###################################################
 
 def filter_gender():
     option_map_gender = {
@@ -405,6 +458,31 @@ def filter_continents():
     return option_continents, continents_header, selected_continents
 
 
+def filter_title():
+    option_map_title = {
+        'GM': "Grandmaster",
+        'NT': 'No Title',
+        'other_titles': 'Other Titles'
+    }
+
+    title_header = st.sidebar.markdown("""
+    <style>
+    #title-header {
+        margin-bottom: -100px; /* Adjust the negative value to reduce space */
+    }
+    </style>
+    <h3 id="title-header">Title</h3>
+    """, unsafe_allow_html=True)
+    
+    selected_title = st.sidebar.pills(
+        label="Title",
+        options=option_map_title.keys(),
+        format_func= lambda option:option_map_title[option],
+        selection_mode="multi",
+        default=option_map_title.keys(),
+        label_visibility="hidden")
+    
+    return option_map_title, title_header, selected_title
 
 
 
