@@ -35,11 +35,38 @@ def load_data(query: str) -> pd.DataFrame:
             print("Connection successful!")
             # Execute the query
             df = pd.read_sql_query(query, conn)
-            df["date"] = pd.to_datetime(df["date"])
+            
+            if 'date' in df.columns:
+                df["date"] = pd.to_datetime(df["date"])
+            
             return df
     except SQLAlchemyError as e:
         raise RuntimeError(f"Database connection or query execution failed: {e}")
+
+def get_min_rating() -> int:
+    # Example: Fetch top players from the "Open" group
+    query = """
+        SELECT  min(Rating)
+        FROM MontlhyUpdates mu
+        ;
+    """
+    df = load_data(query)
+    min_rating = df['min'].values[0]
     
+    return min_rating
+
+def get_max_rating() -> int:
+    # Example: Fetch top players from the "Open" group
+    query = """
+        SELECT  max(Rating)
+        FROM MontlhyUpdates mu
+        ;
+    """
+    df = load_data(query)
+    max_rating = df['max'].values[0]
+    
+    return max_rating
+
 
 def customize_title_charts(
     text: str,
@@ -195,13 +222,13 @@ def activity_status_bar_chart(
     # Add the first bar trace (e.g., Men)
     fig_status_activity.add_trace(go.Bar(x=df["date"],
                         y=df["percentage_active_players"].round(2),
-                        name="active_players",
+                        name="active players",
                         marker_color='steelblue'))
 
     # Add the second bar trace (e.g., Women)
     fig_status_activity.add_trace(go.Bar(x=df["date"],
                         y=df["percentage_inactive_players"].round(2),
-                        name="inactive_players",
+                        name="inactive players",
                         marker_color='rosybrown'))
 
     # Customize the layout
@@ -310,7 +337,6 @@ def continents_line_chart(
 
     return fig_continents
 
-
 def title_line_chart(
     df: pd.DataFrame,
     selected_title: list,
@@ -376,6 +402,113 @@ def title_line_chart(
     )
 
     return fig_title
+
+
+def age_group_heat_map(
+    df: pd.DataFrame,
+    values_group_age: list,
+    text: str,
+    subtitle: dict)-> go.Figure:
+
+    df["date"] = pd.to_datetime(df["date"])
+    df["date"].dt.strftime("%Y-%m")
+
+    z_data = np.array([
+        df["percentage_less_than_19"],
+        df["percentage_19_to_30"],
+        df["percentage_31_to_40"],
+        df["percentage_41_to_50"],
+        df["percentage_51_to_65"],
+        df["percentage_more_than_66"],
+    ])
+
+    # Create annotations for each cell in the heatmap
+    annotations = []
+    for i, row in enumerate(z_data):
+        for j, value in enumerate(row):
+            annotations.append(
+                dict(
+                    x=df["date"][j],
+                    y=values_group_age[i],                
+                    text=f"{value*100:.1f}%",  # Format annotation with percentage
+                    showarrow=False,
+                    font=dict(size=10, color="white" if value*100 > 28 else "black")  # Dynamic text color
+                )
+            )
+
+    # Create the annotated heatmap
+    fig_title = go.Figure(data=go.Heatmap(
+        x=df["date"],
+        y=values_group_age,
+        z=z_data,
+        colorscale="Blues",
+        colorbar_title="(%)",
+    ))
+    fig_title.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Age Categories",
+        width=800,
+        height=400,
+        title= customize_title_charts(
+            text=text,
+            subtitle=subtitle),
+        font=dict(
+            family="Courier New, monospace",
+            size=12)           
+    )
+
+    return fig_title
+
+def rating_violin_chart(df: pd.DataFrame,
+    text: str,
+    subtitle: dict)-> go.Figure:
+
+    # Example: Ensure your 'date' column is in the correct format
+    df["date"] = pd.to_datetime(df["date"])
+
+    # Generate the tick values and labels
+    #tick_vals = df["date"]
+    tick_labels = df["date"].dt.strftime("%Y-%m").unique()
+
+    fig_rating = go.Figure()
+
+    fig_rating.add_trace(go.Violin(x=df['date'],
+                            y=df['rating'],
+                            legendgroup='Yes', scalegroup='Yes', name='Yes',
+                            side='negative',
+                            line_color='darkolivegreen')
+                )
+
+    fig_rating.update_traces(meanline_visible=True)
+    fig_rating.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Rating",
+        width=800,
+        height=400,
+        title= customize_title_charts(
+            text=text,
+            subtitle=subtitle),
+        font=dict(
+            family="Courier New, monospace",
+            size=12),
+        violingap=0.25,
+        violinmode='overlay')
+
+    fig_rating.update_xaxes(
+        tickvals=tick_labels,
+        ticktext=tick_labels,
+        tickangle=45  # Rotate labels for better readability
+    )
+    
+    return fig_rating
+
+
+
+
+
+
 
 
 ###################################################
@@ -484,7 +617,58 @@ def filter_title():
     
     return option_map_title, title_header, selected_title
 
+def filter_age_group():
+    
+    option_map_age = {
+        'Less than 19': "0-18",
+        '19-30': '19-30',
+        '31-40': '31-40',
+        '41-50': '41-50',
+        '51-65': '51-65',
+        'More than 66': '66+'
+    }
+    
+    age_header = st.sidebar.markdown("""
+    <style>
+    #age-header {
+        margin-bottom: -100px; /* Adjust the negative value to reduce space */
+    }
+    </style>
+    <h3 id="age-header">Age Group</h3>
+    """, unsafe_allow_html=True)
+    
+    selected_age = st.sidebar.segmented_control(
+        label="Age Group",
+        options=option_map_age.keys(),
+        format_func= lambda option:option_map_age[option],
+        selection_mode="multi",
+        default=option_map_age.keys(),
+        label_visibility="hidden")
+    
+    return option_map_age, age_header, selected_age
 
+def filter_rating(min_rating:int, max_rating:int):
+    
+    rating_header = st.sidebar.markdown("""
+    <style>
+    #rating-header {
+        margin-bottom: -100px; /* Adjust the negative value to reduce space */
+    }
+    </style>
+    <h3 id="rating-header">Rating (Elo range)</h3>
+    """, unsafe_allow_html=True)
+    
+    slider_rating = st.sidebar.slider(
+        label="Rating Range",
+        step=100,
+        value=[min_rating,max_rating],
+        min_value=min_rating,
+        max_value=max_rating,
+        label_visibility="hidden")
+    
+    
+    return rating_header, slider_rating
+    
 
 
 

@@ -1,20 +1,21 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 from utils import load_data
+from utils import get_min_rating
+from utils import get_max_rating
 from utils import filter_gender
 from utils import filter_activity_status
 from utils import filter_continents
 from utils import filter_title
+from utils import filter_age_group
+from utils import filter_rating
 from utils import gender_bar_chart
 from utils import activity_status_bar_chart
 from utils import continents_line_chart
 from utils import title_line_chart
-
+from utils import age_group_heat_map
+from utils import rating_violin_chart
 
 st.set_page_config(layout="wide")
 # Title and subtitle
@@ -23,10 +24,24 @@ st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
 
 st.sidebar.title('Filters')
 
+min_rating = get_min_rating()
+max_rating = get_max_rating()
+
 option_map_gender, gender_header, selected_gender = filter_gender()
 option_map_activity_status, activity_status_header, selected_activity_Status = filter_activity_status()
 option_continents, activity_status_header, selected_continents = filter_continents()    
 option_title, title_header, selected_title = filter_title()
+option_age, age_header, selected_age = filter_age_group()
+rating_header, slider_rating = filter_rating(min_rating, max_rating)
+
+query_rating = """
+	SELECT muomv.ongoing_date as date,
+muomv.rating
+FROM montlhyupdate_open_players_with_age_group_mv muomv
+LEFT JOIN players p ON muomv.ID = p.ID
+LEFT JOIN countries c ON muomv.fed = c.code
+
+"""
 
 # Base query components
 with_clause = """
@@ -108,17 +123,34 @@ if selected_title:
             filters.append(f"title in {tuple(selected_title)}")
         
         else:
-            filters.append(f"title in ('{selected_title[0]}')")        
+            filters.append(f"title in ('{selected_title[0]}')")
+
+if selected_age:
+    
+    if len(selected_age) > 1:
+    
+        filters.append(f"age_category in {tuple(selected_age)}")
+        
+    else:
+        filters.append(f"age_category in ('{selected_age[0]}')")     
+
+if slider_rating:
+    
+    filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
         
 
 # Add the WHERE clause if there are filters
 if filters:
     with_clause += " WHERE " + " AND ".join(filters)
+    
+    query_rating += " WHERE " + " AND ".join(filters)
 
 with_clause += """
 GROUP BY ongoing_date
 )
 """
+
+query_rating += " ORDER BY muomv.ongoing_date ASC"
 
 # Final SELECT statement
 query = with_clause + """
@@ -145,9 +177,10 @@ SELECT
 FROM pre_aggregations
 ORDER BY ongoing_date ASC
 """
-#st.write(query)
-
+#st.write(query_rating)
 df = load_data(query)
+df_rating = load_data(query_rating)
+#st.write(df_rating.head())
 
 fig_gender = gender_bar_chart(
     df = df,
@@ -186,12 +219,28 @@ fig_title = title_line_chart(
                 font=dict(color="gray", size=12))
     )
 
+fig_age = age_group_heat_map(
+    df=df,
+    values_group_age= list(option_age.values()),
+    text="Age Group Distribution of Players Over Time",
+    subtitle= dict(
+                 text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                font=dict(color="gray", size=12))
+    )
+
+fig_rating = rating_violin_chart(
+    df=df_rating,
+    text="Rating Distribution of Players Over Time",
+    subtitle= dict(
+                 text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                font=dict(color="gray", size=12))
+    )
 
 placeholder = st.container()
 
 with placeholder:
     
-    if not(selected_gender) or not(selected_activity_Status) or not(selected_continents) or not(selected_title):
+    if not(selected_gender) or not(selected_activity_Status) or not(selected_continents) or not(selected_title) or not(selected_age):
         placeholder.header('Each filter has to have at least one option selected.')
         
         if not(selected_gender):                            
@@ -205,6 +254,9 @@ with placeholder:
         
         elif not(selected_title):
             placeholder.subheader('Filter Title is empty')
+        
+        elif not(selected_age):
+            placeholder.subheader('Filter Age Group is empty')
             
     else:
             
@@ -214,10 +266,10 @@ with placeholder:
               
             st.plotly_chart(fig_gender,use_container_width=True)
             st.plotly_chart(fig_continents, use_container_width=True)
+            st.plotly_chart(fig_age, use_container_width=True)
 
         with col2:
             
             st.plotly_chart(fig_status_activity,use_container_width=True)
             st.plotly_chart(fig_title, use_container_width=True)
-    
-   
+            st.plotly_chart(fig_rating, use_container_width=True)
