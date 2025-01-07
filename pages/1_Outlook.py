@@ -213,7 +213,7 @@ fig_continents = continents_line_chart(
 fig_title = title_line_chart(
     df=df,
     selected_title=selected_title,
-    text="Percentage of title players Over Time",
+    text="Percentage of titled players Over Time",
     subtitle= dict(
                  text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
                 font=dict(color="gray", size=12))
