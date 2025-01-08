@@ -21,6 +21,7 @@ def get_connection_url() -> str:
     from config import test_credentials
     return test_credentials()
 
+@st.cache_data
 def load_data(query: str) -> pd.DataFrame:
     """
     Test the connection to the database, then execute a SQL query and return the results as a pandas DataFrame.
