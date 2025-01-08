@@ -2,7 +2,7 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 from utils import load_data
-from utils import get_min_ratings
+from utils import get_min_rating
 from utils import get_max_rating
 from utils import get_main_query
 from utils import get_average_of_median_rating_over_time
