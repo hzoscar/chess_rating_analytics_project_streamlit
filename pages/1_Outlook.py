@@ -2,8 +2,12 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 from utils import load_data
-from utils import get_min_rating
+from utils import get_min_ratings
 from utils import get_max_rating
+from utils import get_main_query
+from utils import get_average_of_median_rating_over_time
+from utils import get_count_unique_countries
+from utils import get_rating_query
 from utils import filter_gender
 from utils import filter_activity_status
 from utils import filter_continents
@@ -34,43 +38,6 @@ option_title, title_header, selected_title = filter_title()
 option_age, age_header, selected_age = filter_age_group()
 rating_header, slider_rating = filter_rating(min_rating, max_rating)
 
-query_rating = """
-	SELECT muomv.ongoing_date as date,
-muomv.rating
-FROM montlhyupdate_open_players_with_age_group_mv muomv
-LEFT JOIN players p ON muomv.ID = p.ID
-LEFT JOIN countries c ON muomv.fed = c.code
-
-"""
-
-# Base query components
-with_clause = """
-WITH pre_aggregations AS (
-    SELECT 
-        muomv.ongoing_date,
-        COUNT(*) AS total_players,
-        COUNT(CASE WHEN sex = 'M' THEN 1 END) AS total_men,
-        COUNT(CASE WHEN sex = 'F' THEN 1 END) AS total_women,
-        COUNT(CASE WHEN c.continent = 'Asia' THEN 1 END) AS total_Asia,
-        COUNT(CASE WHEN c.continent = 'Oceania' THEN 1 END) AS total_Oceania,
-        COUNT(CASE WHEN c.continent = 'Africa' THEN 1 END) AS total_Africa,
-        COUNT(CASE WHEN c.continent = 'Europe' THEN 1 END) AS total_Europe,
-        COUNT(CASE WHEN c.continent = 'Americas' THEN 1 END) AS total_Americas,  
-        COUNT(CASE WHEN muomv.title IN ('CM','FM','IM','WCM','WFM','WGM','WH','WIM')  THEN 1 END)  AS total_other_titles,
-        COUNT(CASE WHEN muomv.title = 'GM' THEN 1 END)  AS total_GM,
-        COUNT(CASE WHEN muomv.title = 'NT' THEN 1 END)  AS total_NT,    
-        COUNT(CASE WHEN muomv.activity_status = 'a' THEN 1 END)  AS total_active_players,
-        COUNT(CASE WHEN muomv.activity_status = 'i' THEN 1 END) AS total_inactive_players,    
-        COUNT(CASE WHEN muomv.age_category = 'Less than 19' THEN 1 END)  AS total_less_than_19,
-        COUNT(CASE WHEN muomv.age_category = '19-30' THEN 1 END) AS total_19_to_30,
-        COUNT(CASE WHEN muomv.age_category = '31-40' THEN 1 END) AS total_31_to_40,
-        COUNT(CASE WHEN muomv.age_category = '41-50' THEN 1 END) AS total_41_to_50,
-        COUNT(CASE WHEN muomv.age_category = '51-65' THEN 1 END) AS total_51_to_65,
-        COUNT(CASE WHEN muomv.age_category = 'More than 66' THEN 1 END)  AS total_more_than_66
-    FROM   montlhyupdate_open_players_with_age_group_mv muomv
-    LEFT JOIN players p ON muomv.ID = p.ID
-    LEFT JOIN countries c ON muomv.fed = c.code
-"""
 filters = ["EXTRACT(MONTH FROM muomv.ongoing_date) = (SELECT get_last_month())"]
 
 if selected_gender:
@@ -137,48 +104,12 @@ if selected_age:
 if slider_rating:
     
     filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
-        
 
-# Add the WHERE clause if there are filters
-if filters:
-    with_clause += " WHERE " + " AND ".join(filters)
-    
-    query_rating += " WHERE " + " AND ".join(filters)
+main_query = get_main_query(filters=filters)
+query_rating = get_rating_query(filters=filters)
 
-with_clause += """
-GROUP BY ongoing_date
-)
-"""
-
-query_rating += " ORDER BY muomv.ongoing_date ASC"
-
-# Final SELECT statement
-query = with_clause + """
-SELECT
-    ongoing_date AS date,
-    ROUND(total_men * 1.0 / NULLIF(total_players, 0), 2) AS percentage_men,
-    ROUND(total_women * 1.0 / NULLIF(total_players, 0), 2) AS percentage_women,
-    ROUND(total_Asia  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Asia,
-    ROUND(total_Oceania  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Oceania,
-    ROUND(total_Africa  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Africa,
-    ROUND(total_Europe * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Europe,
-    ROUND(total_Americas * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Americas,  
-    ROUND(total_other_titles * 1.0 / NULLIF(total_players, 0), 2) AS percentage_other_titles,
-    ROUND(total_GM * 1.0 / NULLIF(total_players, 0), 2) AS percentage_GM,
-    ROUND(total_NT * 1.0 / NULLIF(total_players, 0), 2) AS percentage_NT,    
-    ROUND(total_active_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_active_players,
-    ROUND(total_inactive_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_inactive_players,    
-    ROUND(total_less_than_19 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_less_than_19,
-    ROUND(total_19_to_30 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_19_to_30,
-    ROUND(total_31_to_40 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_31_to_40,
-    ROUND(total_41_to_50 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_41_to_50,
-    ROUND(total_51_to_65 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_51_to_65,
-    ROUND(total_more_than_66 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_more_than_66
-FROM pre_aggregations
-ORDER BY ongoing_date ASC
-"""
 #st.write(query_rating)
-df = load_data(query)
+df = load_data(main_query)
 df_rating = load_data(query_rating)
 #st.write(df_rating.head())
 
@@ -189,7 +120,6 @@ fig_gender = gender_bar_chart(
                 text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
                 font=dict(color="gray", size=12))
     )
-
 
 fig_status_activity = activity_status_bar_chart(
     df=df,
@@ -261,15 +191,29 @@ with placeholder:
     else:
             
         col1, col2 = st.columns(2)
-
+        
         with col1:           
-              
+            st.markdown(
+            f"""
+            <div style="border: 2px solid #ccc; border-radius: 10px; padding: 0px;  margin: 25px; text-align: center;">
+                <h4>Average of median rating over time</h4>
+                <p style="font-size: 20px;">{get_average_of_median_rating_over_time(filters=filters)}</p>
+            </div>
+            """,
+            unsafe_allow_html=True)
             st.plotly_chart(fig_gender,use_container_width=True)
             st.plotly_chart(fig_continents, use_container_width=True)
             st.plotly_chart(fig_age, use_container_width=True)
 
         with col2:
-            
+            st.markdown(
+            f"""
+            <div style="border: 2px solid #ccc; border-radius: 10px; padding: 0px; margin: 25px; text-align: center;">
+                <h4>Total Countries considered</h4>
+                <p style="font-size: 20px;">{get_count_unique_countries(filters=filters)}</p>
+            </div>
+            """,
+            unsafe_allow_html=True)
             st.plotly_chart(fig_status_activity,use_container_width=True)
             st.plotly_chart(fig_title, use_container_width=True)
             st.plotly_chart(fig_rating, use_container_width=True)

@@ -8,6 +8,10 @@ from typing import Optional, Union
 from typing import Optional, Dict
 import streamlit as st
 
+###################################################
+# Conection database
+###################################################
+
 def get_connection_url() -> str:
     """
     Retrieve the database connection URL from the configuration file.
@@ -16,7 +20,6 @@ def get_connection_url() -> str:
     """
     from config import test_credentials
     return test_credentials()
-
 
 def load_data(query: str) -> pd.DataFrame:
     """
@@ -43,6 +46,91 @@ def load_data(query: str) -> pd.DataFrame:
     except SQLAlchemyError as e:
         raise RuntimeError(f"Database connection or query execution failed: {e}")
 
+###################################################
+# queries
+###################################################   
+
+def get_main_query(filters:list) -> str:
+    
+    # Base query components
+    with_clause = """
+    WITH pre_aggregations AS (
+        SELECT 
+            muomv.ongoing_date,
+            COUNT(*) AS total_players,
+            COUNT(CASE WHEN sex = 'M' THEN 1 END) AS total_men,
+            COUNT(CASE WHEN sex = 'F' THEN 1 END) AS total_women,
+            COUNT(CASE WHEN c.continent = 'Asia' THEN 1 END) AS total_Asia,
+            COUNT(CASE WHEN c.continent = 'Oceania' THEN 1 END) AS total_Oceania,
+            COUNT(CASE WHEN c.continent = 'Africa' THEN 1 END) AS total_Africa,
+            COUNT(CASE WHEN c.continent = 'Europe' THEN 1 END) AS total_Europe,
+            COUNT(CASE WHEN c.continent = 'Americas' THEN 1 END) AS total_Americas,  
+            COUNT(CASE WHEN muomv.title IN ('CM','FM','IM','WCM','WFM','WGM','WH','WIM')  THEN 1 END)  AS total_other_titles,
+            COUNT(CASE WHEN muomv.title = 'GM' THEN 1 END)  AS total_GM,
+            COUNT(CASE WHEN muomv.title = 'NT' THEN 1 END)  AS total_NT,    
+            COUNT(CASE WHEN muomv.activity_status = 'a' THEN 1 END)  AS total_active_players,
+            COUNT(CASE WHEN muomv.activity_status = 'i' THEN 1 END) AS total_inactive_players,    
+            COUNT(CASE WHEN muomv.age_category = 'Less than 19' THEN 1 END)  AS total_less_than_19,
+            COUNT(CASE WHEN muomv.age_category = '19-30' THEN 1 END) AS total_19_to_30,
+            COUNT(CASE WHEN muomv.age_category = '31-40' THEN 1 END) AS total_31_to_40,
+            COUNT(CASE WHEN muomv.age_category = '41-50' THEN 1 END) AS total_41_to_50,
+            COUNT(CASE WHEN muomv.age_category = '51-65' THEN 1 END) AS total_51_to_65,
+            COUNT(CASE WHEN muomv.age_category = 'More than 66' THEN 1 END)  AS total_more_than_66
+        FROM   montlhyupdate_open_players_with_age_group_mv muomv
+        LEFT JOIN players p ON muomv.ID = p.ID
+        LEFT JOIN countries c ON muomv.fed = c.code
+    """
+    with_clause += " WHERE " + " AND ".join(filters)
+    with_clause += """
+    GROUP BY ongoing_date
+    )
+    """    
+    # Final SELECT statement
+    query = with_clause + """
+    SELECT
+        ongoing_date AS date,
+        ROUND(total_men * 1.0 / NULLIF(total_players, 0), 2) AS percentage_men,
+        ROUND(total_women * 1.0 / NULLIF(total_players, 0), 2) AS percentage_women,
+        ROUND(total_Asia  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Asia,
+        ROUND(total_Oceania  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Oceania,
+        ROUND(total_Africa  * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Africa,
+        ROUND(total_Europe * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Europe,
+        ROUND(total_Americas * 1.0 / NULLIF(total_players, 0), 2) AS percentage_Americas,  
+        ROUND(total_other_titles * 1.0 / NULLIF(total_players, 0), 2) AS percentage_other_titles,
+        ROUND(total_GM * 1.0 / NULLIF(total_players, 0), 2) AS percentage_GM,
+        ROUND(total_NT * 1.0 / NULLIF(total_players, 0), 2) AS percentage_NT,    
+        ROUND(total_active_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_active_players,
+        ROUND(total_inactive_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_inactive_players,    
+        ROUND(total_less_than_19 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_less_than_19,
+        ROUND(total_19_to_30 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_19_to_30,
+        ROUND(total_31_to_40 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_31_to_40,
+        ROUND(total_41_to_50 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_41_to_50,
+        ROUND(total_51_to_65 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_51_to_65,
+        ROUND(total_more_than_66 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_more_than_66
+    FROM pre_aggregations
+    ORDER BY ongoing_date ASC
+    """    
+    return query
+
+def get_rating_query(filters:list) -> str:
+
+    query_rating = """
+        SELECT muomv.ongoing_date as date,
+    muomv.rating
+    FROM montlhyupdate_open_players_with_age_group_mv muomv
+    LEFT JOIN players p ON muomv.ID = p.ID
+    LEFT JOIN countries c ON muomv.fed = c.code
+
+    """
+    query_rating += " WHERE " + " AND ".join(filters)
+    
+    query_rating += " ORDER BY muomv.ongoing_date ASC"
+
+    return query_rating
+###################################################
+# mesures
+###################################################   
+    
 def get_min_rating() -> int:
     # Example: Fetch top players from the "Open" group
     query = """
@@ -67,6 +155,48 @@ def get_max_rating() -> int:
     
     return max_rating
 
+def get_average_of_median_rating_over_time(filters:list) -> int:
+    
+    with_clause = """
+    WITH preprocessing as (
+        SELECT muomv.ongoing_date as date,
+        percentile_cont(0.5) WITHIN GROUP (order by muomv.rating) as median_rating
+    FROM montlhyupdate_open_players_with_age_group_mv muomv
+    LEFT JOIN players p ON muomv.ID = p.ID
+    LEFT JOIN countries c ON muomv.fed = c.code """
+    
+    with_clause += " WHERE " + " AND ".join(filters)
+    with_clause += """
+    GROUP BY muomv.ongoing_date
+    )
+    """ 
+    query = with_clause + """
+        SELECT 
+        ROUND(CAST(AVG(median_rating) AS numeric), 2) AS avg_median_rating
+        FROM preprocessing """
+        
+    df = load_data(query)
+    average_of_median_rating_over_time = df['avg_median_rating'].values[0]
+    
+    return average_of_median_rating_over_time
+
+def get_count_unique_countries(filters:list) -> int:
+    query = """
+        SELECT
+    count(distinct country) as unique_countries
+    FROM countries c 
+    RIGHT JOIN montlhyupdate_open_players_with_age_group_mv muomv ON c.code = muomv.fed
+    LEFT JOIN players p ON muomv.ID = p.ID
+    """
+    query += " WHERE " + " AND ".join(filters)
+    
+    df = load_data(query)
+    count_unique_countries = df['unique_countries'].values[0]
+    
+    return count_unique_countries
+###################################################
+# Charts
+###################################################
 
 def customize_title_charts(
     text: str,
@@ -112,7 +242,6 @@ def customize_title_charts(
 
     return title
         
-
 @st.cache_data
 def bubble_chart(
     query: str,  # SQL query to fetch data
@@ -403,7 +532,6 @@ def title_line_chart(
 
     return fig_title
 
-
 def age_group_heat_map(
     df: pd.DataFrame,
     values_group_age: list,
@@ -504,13 +632,6 @@ def rating_violin_chart(df: pd.DataFrame,
     
     return fig_rating
 
-
-
-
-
-
-
-
 ###################################################
 # Filters
 ###################################################
@@ -539,7 +660,6 @@ def filter_gender():
     
     return option_map_gender, gender_header, selected_gender
 
-
 def filter_activity_status():
     
     option_map_activity_status = {
@@ -566,7 +686,6 @@ def filter_activity_status():
     
     return option_map_activity_status, activity_status_header, selected_activity_Status
 
-
 def filter_continents():
     
     option_continents = ['Oceania', 'Africa', 'Europe', 'Americas', 'Asia']
@@ -589,7 +708,6 @@ def filter_continents():
         label_visibility="hidden")
     
     return option_continents, continents_header, selected_continents
-
 
 def filter_title():
     option_map_title = {
