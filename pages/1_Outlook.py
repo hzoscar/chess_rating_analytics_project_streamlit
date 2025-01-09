@@ -10,7 +10,6 @@ from utils import get_count_unique_countries
 from utils import get_rating_query
 from utils import filter_gender
 from utils import filter_activity_status
-from utils import filter_continents
 from utils import filter_title
 from utils import filter_age_group
 from utils import filter_rating
@@ -33,7 +32,6 @@ max_rating = get_max_rating()
 
 option_map_gender, gender_header, selected_gender = filter_gender()
 option_map_activity_status, activity_status_header, selected_activity_Status = filter_activity_status()
-option_continents, activity_status_header, selected_continents = filter_continents()    
 option_title, title_header, selected_title = filter_title()
 option_age, age_header, selected_age = filter_age_group()
 rating_header, slider_rating = filter_rating(min_rating, max_rating)
@@ -57,15 +55,6 @@ if selected_activity_Status:
         
     else:
         filters.append(f"activity_status in ('{selected_activity_Status[0]}')")
-
-if selected_continents:
-    
-    if len(selected_continents) > 1:
-    
-        filters.append(f"continent in {tuple(selected_continents)}")
-        
-    else:
-        filters.append(f"continent in ('{selected_continents[0]}')")
      
 other_titles_list = ['CM','FM','IM','WCM','WFM','WGM','WH','WIM'] 
         
@@ -130,8 +119,7 @@ fig_status_activity = activity_status_bar_chart(
     )
 
 fig_continents = continents_line_chart(
-    df=df,
-    selected_continents=selected_continents,
+    df=df,    
     text="Participation of Players by Continent Over Time",
     subtitle= dict(
                  text="Percentages of top 100 players per country<br> segmented by continent over the last 10 years <br>",
@@ -170,17 +158,14 @@ placeholder = st.container()
 
 with placeholder:
     
-    if not(selected_gender) or not(selected_activity_Status) or not(selected_continents) or not(selected_title) or not(selected_age):
+    if not(selected_gender) or not(selected_activity_Status) or not(selected_title) or not(selected_age): 
         placeholder.header('Each filter has to have at least one option selected.')
         
         if not(selected_gender):                            
             placeholder.subheader('Filter Gender is empty') 
                 
         elif not(selected_activity_Status):                
-            placeholder.subheader('Filter Activity Status is empty')
-        
-        elif not(selected_continents):
-            placeholder.subheader('Filter Continents is empty')
+            placeholder.subheader('Filter Activity Status is empty')       
         
         elif not(selected_title):
             placeholder.subheader('Filter Title is empty')

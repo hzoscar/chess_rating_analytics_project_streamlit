@@ -5,20 +5,19 @@ warnings.filterwarnings('ignore')
 
 # query 
 query = """
-        SELECT 
-        c.country,
-        c.continent,
-        mu.Ongoing_date AS "date",
-        COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm",
-        COUNT(mu.title) AS "count of title players",
-        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating"
-    FROM MontlhyUpdates mu
-    LEFT JOIN countries c ON mu.fed = c.code    
-    WHERE Group_index = 'O'  
-    AND FED not in ('NON','FID') 
-    AND activity_status = 'a' 
-    GROUP BY c.country, mu.Ongoing_date, c.continent
-    ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
+            SELECT 
+    c.country,
+    c.continent,
+    mu.Ongoing_date AS "date",
+    COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm",
+    COUNT(mu.title) AS "count of title players",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating"
+FROM MontlhyUpdates mu
+LEFT JOIN countries c ON mu.fed = c.code    
+WHERE Group_index = 'O'  
+  AND FED not in ('NON','FID')   
+GROUP BY c.country, mu.Ongoing_date, c.continent
+ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
 
 """
 st.set_page_config(layout="wide")
@@ -36,7 +35,7 @@ st.markdown(""" Here is a taste of what you'll find here: This interactive bubbl
 
 with st.container(border=True):
     
-    fig = bubble_chart(query= query, text= "Median Rating vs Amount of Active Titled Players <br> per Country Over Time <br>")
+    fig = bubble_chart(query= query, text= "Median Rating vs Amount of Gms Players <br> per Country Over Time <br>")
 
     st.plotly_chart(fig,use_container_width=True)
     

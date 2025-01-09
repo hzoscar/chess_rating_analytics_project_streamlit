@@ -261,15 +261,15 @@ def bubble_chart(
     # Create an animated scatter plot using Plotly
     fig = px.scatter(
         df,
-        x="count of title players",         # X-axis: count of title players
-        y="median of rating",               # Y-axis: median of player ratings
+        y="count of Gm",         # X-axis: count of title players
+        x="median of rating",               # Y-axis: median of player ratings
         animation_frame="date",             # Frames for animation are based on 'date'
         animation_group="country",          # Groups animation transitions by 'country'
-        size="count of Gm",                 # Size of bubbles corresponds to the count of Grandmasters
+        size="count of title players",                 # Size of bubbles corresponds to the count of Grandmasters
         hover_name="country",               # Hover displays the country name
         color="continent",                  # Bubbles are colored based on the continent
-        range_y=[2000, 2700],               # Y-axis range
-        range_x=[0, 100],                   # X-axis range
+        range_x=[1500, 2700],               # Y-axis range
+        range_y=[-20, 110],                   # X-axis range
         color_discrete_sequence=custom_color_sequence,  # Use the custom color sequence
         width=800,                          # Width of the chart
         height=400                          # Height of the chart
@@ -387,19 +387,19 @@ def activity_status_bar_chart(
 
 def continents_line_chart(
     df: pd.DataFrame,
-    selected_continents: list,
+    #selected_continents: list,
     text: str,
     subtitle: dict)-> go.Figure:
 
-    option_continents = ['Oceania', 'Africa', 'Europe', 'Americas', 'Asia']
+    # option_continents = ['Oceania', 'Africa', 'Europe', 'Americas', 'Asia']
     
-    # Create a set of columns to exclude based on non-selected continents
-    not_selected = {continent.lower() for continent in option_continents if continent not in selected_continents}
+    # # Create a set of columns to exclude based on non-selected continents
+    # not_selected = {continent.lower() for continent in option_continents if continent not in selected_continents}
 
-    # Filter columns that do not end with any of the `not_selected` values
-    columns_to_consider = [col for col in df.columns if not any(col.endswith(ns) for ns in not_selected)]
+    # # Filter columns that do not end with any of the `not_selected` values
+    # columns_to_consider = [col for col in df.columns if not any(col.endswith(ns) for ns in not_selected)]
     
-    df = df[columns_to_consider]
+    # df = df[columns_to_consider]
     
     # Generate the tick values and labels
     tick_vals = df["date"]
@@ -407,42 +407,42 @@ def continents_line_chart(
 
     fig_continents = go.Figure()
 
-    if 'Europe' in selected_continents:
-        # Add the first bar trace (e.g., percentage_from_31_to_40)
-        fig_continents.add_trace(go.Scatter(x=df["date"],
-                                y=df["percentage_europe"],
-                                name="Europe",
-                                marker_color="cornflowerblue")) # royalblue
+#if 'Europe' in selected_continents:
+    # Add the first bar trace (e.g., percentage_from_31_to_40)
+    fig_continents.add_trace(go.Scatter(x=df["date"],
+                            y=df["percentage_europe"],
+                            name="Europe",
+                            marker_color="cornflowerblue")) # royalblue
 
-    if 'Asia' in selected_continents:
-        # Add the first bar trace (e.g., percentage_asia)
-        fig_continents.add_trace(go.Scatter(x=df["date"],
-                                y=df["percentage_asia"],
-                                name="Asia",
-                                marker_color="olivedrab")) # mediumaquamarine
-        
-    if 'Americas' in selected_continents:
-
-        # Add the first bar trace (e.g., percentage_from_41_to_50)
-        fig_continents.add_trace(go.Scatter(x=df["date"],
-                                y=df["percentage_americas"],
-                                name="Americas",
-                                marker_color="maroon"))# gold                      #here
-
-    if 'Oceania' in selected_continents:
-        # Add the first bar trace (e.g., percentage_from_19_to_30)
-        fig_continents.add_trace(go.Scatter(x=df["date"],
-                                y=df["percentage_oceania"],
-                                name="Oceania",
-                                marker_color="chocolate")) #coral
+#if 'Asia' in selected_continents:
+    # Add the first bar trace (e.g., percentage_asia)
+    fig_continents.add_trace(go.Scatter(x=df["date"],
+                            y=df["percentage_asia"],
+                            name="Asia",
+                            marker_color="olivedrab")) # mediumaquamarine
     
-    if 'Africa' in selected_continents:
+#if 'Americas' in selected_continents:
 
-        # Add the first bar trace (e.g., percentage_from_31_to_40)
-        fig_continents.add_trace(go.Scatter(x=df["date"],
-                                y=df["percentage_africa"],
-                                name="Africa",
-                                marker_color= "darkkhaki"))
+    # Add the first bar trace (e.g., percentage_from_41_to_50)
+    fig_continents.add_trace(go.Scatter(x=df["date"],
+                            y=df["percentage_americas"],
+                            name="Americas",
+                            marker_color="maroon"))# gold                      #here
+
+#if 'Oceania' in selected_continents:
+    # Add the first bar trace (e.g., percentage_from_19_to_30)
+    fig_continents.add_trace(go.Scatter(x=df["date"],
+                            y=df["percentage_oceania"],
+                            name="Oceania",
+                            marker_color="chocolate")) #coral
+
+#if 'Africa' in selected_continents:
+
+    # Add the first bar trace (e.g., percentage_from_31_to_40)
+    fig_continents.add_trace(go.Scatter(x=df["date"],
+                            y=df["percentage_africa"],
+                            name="Africa",
+                            marker_color= "darkkhaki"))
 
     # Customize the layout
     fig_continents.update_layout(
