@@ -128,6 +128,44 @@ def get_rating_query(filters:list) -> str:
     query_rating += " ORDER BY muomv.ongoing_date ASC"
 
     return query_rating
+
+def get_continent_query_for_bubble_chart(continent:str) -> str:
+    
+    query = f"""
+    SELECT 
+    c.country,    
+    c.subregion,
+    mu.Ongoing_date AS "date",    
+    COUNT(mu.title) AS "count of titled players",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
+    COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
+    FROM MontlhyUpdates mu
+    LEFT JOIN countries c ON mu.fed = c.code    
+    WHERE Group_index = 'O'  
+    AND continent = '{continent}'
+    
+    GROUP BY c.country, mu.Ongoing_date, c.continent, c.subregion
+    ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
+
+    """
+    
+    return query
+
+def get_continent_query_for_choropleth(continent:str) -> str:
+    query = f"""
+    SELECT 
+    c.country,     
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY muomv.rating) AS "median of rating"
+    FROM montlhyupdate_open_players_with_age_group_mv muomv
+    LEFT JOIN countries c ON muomv.fed = c.code    
+    WHERE muomv.Ongoing_date = (select MAX(mu.Ongoing_date) from MontlhyUpdates mu)
+    AND continent = '{continent}'    
+    GROUP BY c.country, muomv.Ongoing_date
+    ORDER BY muomv.Ongoing_date ASC,"median of rating" DESC
+
+"""
+    return query
+
 ###################################################
 # mesures
 ###################################################   
@@ -201,7 +239,7 @@ def get_count_unique_countries(filters:list) -> int:
 
 def customize_title_charts(
     text: str,
-    y: float = 0.9,
+    y: float = 0.93,
     x: float = 0.5,
     xanchor: str = "center",
     yanchor: str = "top",
@@ -246,6 +284,7 @@ def customize_title_charts(
 @st.cache_data
 def bubble_chart(
     query: str,  # SQL query to fetch data
+    color_column: str,  # Column to use for color encoding
     text: str    # Text to customize the chart title
 ) -> px.scatter:  # Returns a Plotly scatter plot object with animation
 
@@ -256,8 +295,7 @@ def bubble_chart(
     df['date'] = df["date"].dt.strftime("%Y-%m")
 
     # Define a custom color sequence for the chart
-    custom_color_sequence = ["cornflowerblue", "olivedrab", "maroon", "chocolate", "darkkhaki"]
-
+    custom_color_sequence = [ "maroon","cornflowerblue", "olivedrab", "chocolate","darkkhaki"]
     # Create an animated scatter plot using Plotly
     fig = px.scatter(
         df,
@@ -265,9 +303,9 @@ def bubble_chart(
         x="median of rating",               # Y-axis: median of player ratings
         animation_frame="date",             # Frames for animation are based on 'date'
         animation_group="country",          # Groups animation transitions by 'country'
-        size="count of title players",                 # Size of bubbles corresponds to the count of Grandmasters
+        size="count of titled players",                 # Size of bubbles corresponds to the count of Grandmasters
         hover_name="country",               # Hover displays the country name
-        color="continent",                  # Bubbles are colored based on the continent
+        color=color_column,                  # Bubbles are colored based on the continent
         range_x=[1500, 2700],               # Y-axis range
         range_y=[-20, 110],                   # X-axis range
         color_discrete_sequence=custom_color_sequence,  # Use the custom color sequence
@@ -275,9 +313,12 @@ def bubble_chart(
         height=400                          # Height of the chart
     )
 
-    # Update the chart layout to include a title, using a custom title function
+       
     fig.update_layout(
-        title=customize_title_charts(text=text)  # Title is dynamically customized using 'text'
+        title=customize_title_charts(text=text),  # Title is dynamically customized using 'text'
+        font=dict(
+            family="Courier New, monospace",
+            size=12)
     )
     
     # Return the completed chart
@@ -633,6 +674,35 @@ def rating_violin_chart(df: pd.DataFrame,
     
     return fig_rating
 
+def choropleth_map(query: str,
+                   text: str,                   
+                   scope: str = 'world',
+                   center: Optional[dict] = None,
+                   ) -> px.choropleth:
+    
+    # Fetch data using the query and load it into a DataFrame
+    df = load_data(query)
+    
+    fig = px.choropleth(df, locations='country', color='median of rating',
+                           color_continuous_scale="viridis",
+                           scope=scope,
+                           locationmode='country names',
+                           projection='equirectangular',
+                           fitbounds='locations',
+                           width=800,
+                        height=400,
+                        center= center
+                        #center= {'lat': 8.983333, 'lon': -79.516670}
+                        #center={'lat': -26.853388, 'lon': 133.275154} australia,
+                                                     )
+    fig.update_layout(
+        title=customize_title_charts(text=text),  # Title is dynamically customized using 'text'
+        font=dict(
+            family="Courier New, monospace",
+            size=12)
+    )
+    
+    return fig
 ###################################################
 # Filters
 ###################################################

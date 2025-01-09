@@ -10,7 +10,7 @@ query = """
     c.continent,
     mu.Ongoing_date AS "date",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm",
-    COUNT(mu.title) AS "count of title players",
+    COUNT(mu.title) AS "count of titled players",
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating"
 FROM MontlhyUpdates mu
 LEFT JOIN countries c ON mu.fed = c.code    
@@ -27,15 +27,15 @@ st.title("Global Chess Trends Explorer Project! :chess_pawn:")
 st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
 
 st.markdown(""" Here is a taste of what you'll find here: This interactive bubble plot visualizes the relationship between the median Elo rating
-                    and the number of active titled players for different countries **over the last 10 years**. Each bubble
-                    represents a country and varies in size according to the number of Grandmasters (GM) in that country.
+                    and the number of Grandmaster (Gm) players for different countries **over the last 10 years**. Each bubble
+                    represents a country and varies in size according to the number of titled players in that country.
                     **It's important to mention that the data contains only the top 100 strongest players by rating from each country.** 
                         
                         """)
 
 with st.container(border=True):
     
-    fig = bubble_chart(query= query, text= "Median Rating vs Amount of Gms Players <br> per Country Over Time <br>")
+    fig = bubble_chart(query= query, color_column='continent' ,text= "Median Rating vs Amount of Gms Players <br> per Country Over Time <br>")
 
     st.plotly_chart(fig,use_container_width=True)
     
