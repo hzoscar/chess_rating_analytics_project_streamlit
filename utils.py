@@ -170,25 +170,32 @@ def get_continent_query_for_choropleth(continent:str) -> str:
 # mesures
 ###################################################   
     
-def get_min_rating() -> int:
+def get_min_rating(continent: Optional[str]=None) -> int:
     # Example: Fetch top players from the "Open" group
     query = """
         SELECT  min(Rating)
-        FROM MontlhyUpdates mu
-        ;
+        FROM MontlhyUpdates mu    
     """
+    
+    if continent:
+        query += f""" LEFT JOIN countries c ON mu.fed = c.code
+                    WHERE continent = '{continent}';"""
+    
     df = load_data(query)
     min_rating = df['min'].values[0]
     
     return min_rating
 
-def get_max_rating() -> int:
+def get_max_rating(continent: Optional[str]=None) -> int:
     # Example: Fetch top players from the "Open" group
     query = """
         SELECT  max(Rating)
-        FROM MontlhyUpdates mu
-        ;
+        FROM MontlhyUpdates mu        
     """
+    if continent:
+        query += f""" LEFT JOIN countries c ON mu.fed = c.code
+                    WHERE continent = '{continent}';"""
+                    
     df = load_data(query)
     max_rating = df['max'].values[0]
     
@@ -233,6 +240,7 @@ def get_count_unique_countries(filters:list) -> int:
     count_unique_countries = df['unique_countries'].values[0]
     
     return count_unique_countries
+
 ###################################################
 # Charts
 ###################################################
@@ -295,7 +303,7 @@ def bubble_chart(
     df['date'] = df["date"].dt.strftime("%Y-%m")
 
     # Define a custom color sequence for the chart
-    custom_color_sequence = [ "maroon","cornflowerblue", "olivedrab", "chocolate","darkkhaki"]
+    custom_color_sequence = [ "maroon", "olivedrab","cornflowerblue", "chocolate","darkkhaki"]
     # Create an animated scatter plot using Plotly
     fig = px.scatter(
         df,
@@ -647,7 +655,7 @@ def rating_violin_chart(df: pd.DataFrame,
                             y=df['rating'],
                             legendgroup='Yes', scalegroup='Yes', name='Yes',
                             side='negative',
-                            line_color='darkolivegreen')
+                            line_color='teal')
                 )
 
     fig_rating.update_traces(meanline_visible=True)
@@ -703,6 +711,57 @@ def choropleth_map(query: str,
     )
     
     return fig
+
+def get_five_figures(df: pd.DataFrame,
+                     df_rating: pd.DataFrame,
+                     selected_title: list,
+                        option_age: dict,                        
+                     ):
+    
+    fig_gender = gender_bar_chart(
+        df = df,
+        text=  "Trends in Gender Distribution Among Top Players",
+        subtitle= dict(
+                    text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    font=dict(color="gray", size=12))
+        )
+
+    fig_status_activity = activity_status_bar_chart(
+        df=df,
+        text="Percentage of activity status of players Over Time",
+        subtitle=dict(
+                    text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    font=dict(color="gray", size=12))
+        )
+
+    fig_title = title_line_chart(
+        df=df,
+        selected_title=selected_title,
+        text="Percentage of titled players Over Time",
+        subtitle= dict(
+                    text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    font=dict(color="gray", size=12))
+        )
+
+    fig_age = age_group_heat_map(
+        df=df,
+        values_group_age= list(option_age.values()),
+        text="Age Group Distribution of Players Over Time",
+        subtitle= dict(
+                    text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    font=dict(color="gray", size=12))
+        )
+
+    fig_rating = rating_violin_chart(
+        df=df_rating,
+        text="Rating Distribution of Players Over Time",
+        subtitle= dict(
+                    text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                    font=dict(color="gray", size=12))
+        )
+    
+    return fig_gender, fig_status_activity, fig_title, fig_age, fig_rating
+
 ###################################################
 # Filters
 ###################################################
@@ -858,8 +917,66 @@ def filter_rating(min_rating:int, max_rating:int):
     
     return rating_header, slider_rating
     
+####################################################
+# Structure
+####################################################
 
+def create_placeholder_for_continent_analysis(selected_gender: list,
+                                              selected_activity_Status: list,
+                                              selected_title: list,
+                                              selected_age:list,
+                                              filters: list,
+                                              fig_gender: go.Figure,
+                                              fig_status_activity: go.Figure,
+                                              fig_title: go.Figure,
+                                              fig_age: go.Figure,
+                                              fig_rating: go.Figure): 
+    placeholder = st.container()
 
+    with placeholder:
+        if not(selected_gender) or not(selected_activity_Status) or not(selected_title) or not(selected_age): 
+                placeholder.header('Each filter has to have at least one option selected.')
+                
+                if not(selected_gender):                            
+                    placeholder.subheader('Filter Gender is empty') 
+                        
+                elif not(selected_activity_Status):                
+                    placeholder.subheader('Filter Activity Status is empty')       
+                
+                elif not(selected_title):
+                    placeholder.subheader('Filter Title is empty')
+                
+                elif not(selected_age):
+                    placeholder.subheader('Filter Age Group is empty')
+                    
+        else:                
+            col1, col2 = st.columns(2)
+            
+            with col1:           
+                st.markdown(
+                f"""
+                <div style="border: 2px solid #ccc; border-radius: 10px; padding: 0px;  margin: 25px; text-align: center;">
+                    <h4>Average of median rating over time</h4>
+                    <p style="font-size: 20px;">{get_average_of_median_rating_over_time(filters=filters)}</p>
+                </div>
+                """,
+                unsafe_allow_html=True)
+                st.plotly_chart(fig_gender,use_container_width=True)                
+                st.plotly_chart(fig_age, use_container_width=True)
+
+            with col2:
+                st.markdown(
+                f"""
+                <div style="border: 2px solid #ccc; border-radius: 10px; padding: 0px; margin: 25px; text-align: center;">
+                    <h4>Total Countries considered</h4>
+                    <p style="font-size: 20px;">{get_count_unique_countries(filters=filters)}</p>
+                </div>
+                """,
+                unsafe_allow_html=True)
+                st.plotly_chart(fig_status_activity,use_container_width=True)
+                st.plotly_chart(fig_title, use_container_width=True)
+        
+        st.plotly_chart(fig_rating, use_container_width=True)    
 
 
 

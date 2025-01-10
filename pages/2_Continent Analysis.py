@@ -17,34 +17,22 @@ from utils import filter_activity_status
 from utils import filter_title
 from utils import filter_age_group
 from utils import filter_rating
-from utils import gender_bar_chart
-from utils import activity_status_bar_chart
-from utils import continents_line_chart
-from utils import title_line_chart
-from utils import age_group_heat_map
-from utils import rating_violin_chart
+from utils import get_five_figures
+from utils import create_placeholder_for_continent_analysis
 
 st.set_page_config(layout="wide")
 # Title and subtitle
 st.title("Continent Analysis :world_map:")
-st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
-
-tab1, tab2, tab3, tab4, tab5 =st.tabs(['Africa 	:earth_africa:', 'Americas 	:earth_americas:', 'Asia 	:earth_asia:', 'Europe	:european_castle:', 'Oceania :desert_island:'])
-
-###################################
-# Filters
-###################################
-
 st.sidebar.title('Filters')
 
-min_rating = get_min_rating()
-max_rating = get_max_rating()
+###################################
+# General Filters
+###################################
 
 option_map_gender, gender_header, selected_gender = filter_gender()
 option_map_activity_status, activity_status_header, selected_activity_Status = filter_activity_status()
 option_title, title_header, selected_title = filter_title()
 option_age, age_header, selected_age = filter_age_group()
-rating_header, slider_rating = filter_rating(min_rating, max_rating)
 
 filters = ["EXTRACT(MONTH FROM muomv.ongoing_date) = (SELECT get_last_month())"]
 
@@ -100,108 +88,121 @@ if selected_age:
     else:
         filters.append(f"age_category in ('{selected_age[0]}')")     
 
-if slider_rating:
+
+# Subheader
+st.subheader("Choose a continent to explore:")
+
+# Add a blank spacer with reduced size
+st.write("")  # Acts as a spacer
+continent_chosen = st.radio(
+    "Select a Continent",
+    ('Africa 	:desert:', 'Americas 	:statue_of_liberty:', 'Asia 	:japanese_castle:', 'Europe :european_castle:', 'Oceania :desert_island:'),
+    horizontal=True,
+    label_visibility='hidden'
+)
+
+if 'Africa' in continent_chosen:
+            
+    query_africa_bubble_chart = get_continent_query_for_bubble_chart('Africa')
+    fig_bubble_chart_africa = bubble_chart(query_africa_bubble_chart,
+                                        color_column='subregion',
+                                        text='Africa: Median Rating vs Amount of Gms Players per Country Over Time')
+
+    query_africa_choropleth = get_continent_query_for_choropleth('Africa')
+    fig_choropleth_africa = choropleth_map(query_africa_choropleth,
+                                        scope='africa',
+                                        text="Africa: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>")
     
-    filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
-
-
-    
-
-
-main_query = get_main_query(filters=filters)
-query_rating = get_rating_query(filters=filters)
-
-#st.write(query_rating)
-df = load_data(main_query)
-df_rating = load_data(query_rating)
-#st.write(df_rating.head())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-query_africa_bubble_chart = get_continent_query_for_bubble_chart('Africa')
-fig_bubble_chart_africa = bubble_chart(query_africa_bubble_chart,
-                                       color_column='subregion',
-                                       text='Africa: Median Rating vs Amount of Gms Players per Country Over Time')
-
-query_africa_choropleth = get_continent_query_for_choropleth('Africa')
-fig_choropleth_africa = choropleth_map(query_africa_choropleth,
-                                       scope='africa',
-                                       text="Africa: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>")
-
-query_americas_bubble_chart = get_continent_query_for_bubble_chart('Americas')
-fig_bubble_chart_americas = bubble_chart(query_americas_bubble_chart,
-                                       color_column='subregion',
-                                       text='Americas: Median Rating vs Amount of Gms Players per Country Over Time')
-
-query_americas_choropleth = get_continent_query_for_choropleth('Americas')
-fig_choropleth_americas = choropleth_map(query_americas_choropleth,
-                                       text="Americas: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
-                                       center= {'lat': 8.983333, 'lon': -79.516670}) #Panama
-
-query_asia_bubble_chart = get_continent_query_for_bubble_chart('Asia')
-fig_bubble_chart_asia = bubble_chart(query_asia_bubble_chart,
-                                       color_column='subregion',
-                                       text='Asia: Median Rating vs Amount of Gms Players per Country Over Time')
-
-query_asia_choropleth = get_continent_query_for_choropleth('Asia')
-fig_choropleth_asia = choropleth_map(query_asia_choropleth,
-                                       text="Asia: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
-                                       scope='asia')
-
-query_europe_bubble_chart = get_continent_query_for_bubble_chart('Europe')
-fig_bubble_chart_europe = bubble_chart(query_europe_bubble_chart,
-                                       color_column='subregion',
-                                       text='Europe: Median Rating vs Amount of Gms Players per Country Over Time')
-query_europe_choropleth = get_continent_query_for_choropleth('Europe')
-fig_choropleth_europe = choropleth_map(query_europe_choropleth,
-                                       text="Europe: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
-                                       scope='europe') 
-
-query_oceania_bubble_chart = get_continent_query_for_bubble_chart('Oceania')
-fig_bubble_chart_oceania = bubble_chart(query_oceania_bubble_chart,
-                                       color_column='subregion',
-                                       text='Oceania: Median Rating vs Amount of Gms Players per Country Over Time')
-query_oceania_choropleth = get_continent_query_for_choropleth('Oceania')
-fig_choropleth_oceania = choropleth_map(query_oceania_choropleth,
-                                       text="Oceania: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
-                                       )
-                                       # center={'lat': -26.853388, 'lon': 133.275154}) 
-
-with tab1:
-    st.plotly_chart(fig_choropleth_africa)
-    
+    st.plotly_chart(fig_choropleth_africa)    
     st.divider()
     
+    filters.append(f"continent in ('Africa')")
+    min_rating = get_min_rating(continent='Africa')
+    max_rating = get_max_rating(continent='Africa')
+    rating_header, slider_rating = filter_rating(min_rating, max_rating)
+    
+    if slider_rating:
+    
+        filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
+    
+    main_query = get_main_query(filters=filters)
+    query_rating = get_rating_query(filters=filters)
+
+    #st.write(query_rating)
+    df = load_data(main_query)
+    df_rating = load_data(query_rating)
+    #st.write(df_rating.head())
+
+    fig_gender, fig_status_activity, fig_title, fig_age, fig_rating = get_five_figures(df= df,
+                                                                                       df_rating= df_rating,
+                                                                                        selected_title= selected_title,
+                                                                                        option_age= option_age)
+    
+    create_placeholder_for_continent_analysis(selected_gender = selected_gender,
+                                              selected_activity_Status = selected_activity_Status,
+                                              selected_title= selected_title,
+                                              selected_age = selected_age,
+                                              filters = filters,
+                                              fig_gender = fig_gender,
+                                              fig_status_activity=fig_status_activity,
+                                              fig_title = fig_title,
+                                              fig_age= fig_age,
+                                              fig_rating = fig_rating)            
+
+    st.divider()
     expand = st.expander("Africa - Bubble Chart: Median Rating vs Amount og Gms Players per country over time", icon="🫒")
 
     with expand:
     
         st.plotly_chart(fig_bubble_chart_africa,use_container_width=True)
+        
+elif 'Americas' in continent_chosen:
 
-with tab2:
+    query_americas_bubble_chart = get_continent_query_for_bubble_chart('Americas')
+    fig_bubble_chart_americas = bubble_chart(query_americas_bubble_chart,
+                                        color_column='subregion',
+                                        text='Americas: Median Rating vs Amount of Gms Players per Country Over Time')
+
+    query_americas_choropleth = get_continent_query_for_choropleth('Americas')
+    fig_choropleth_americas = choropleth_map(query_americas_choropleth,
+                                        text="Americas: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
+                                        center= {'lat': 8.983333, 'lon': -79.516670}) #Panama
+    
     st.plotly_chart(fig_choropleth_americas)
+    st.divider()
+    
+    filters.append(f"continent in ('Americas')")
+    min_rating = get_min_rating(continent='Americas')
+    max_rating = get_max_rating(continent='Americas')
+    rating_header, slider_rating = filter_rating(min_rating, max_rating)
+    
+    if slider_rating:
+    
+        filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
+    
+    main_query = get_main_query(filters=filters)
+    query_rating = get_rating_query(filters=filters)
+
+    #st.write(query_rating)
+    df = load_data(main_query)
+    df_rating = load_data(query_rating)
+    #st.write(df_rating.head())
+
+    fig_gender, fig_status_activity, fig_title, fig_age, fig_rating = get_five_figures(df= df,
+                                                                                       df_rating= df_rating,
+                                                                                        selected_title= selected_title,
+                                                                                        option_age= option_age)
+    
+    create_placeholder_for_continent_analysis(selected_gender = selected_gender,
+                                              selected_activity_Status = selected_activity_Status,
+                                              selected_title= selected_title,
+                                              selected_age = selected_age,
+                                              filters = filters,
+                                              fig_gender = fig_gender,
+                                              fig_status_activity=fig_status_activity,
+                                              fig_title = fig_title,
+                                              fig_age= fig_age,
+                                              fig_rating = fig_rating)    
     
     st.divider()
     
@@ -211,33 +212,162 @@ with tab2:
     
         st.plotly_chart(fig_bubble_chart_americas,use_container_width=True)
 
-with tab3:
+elif 'Asia' in continent_chosen:
     
+    query_asia_bubble_chart = get_continent_query_for_bubble_chart('Asia')
+    fig_bubble_chart_asia = bubble_chart(query_asia_bubble_chart,
+                                        color_column='subregion',
+                                        text='Asia: Median Rating vs Amount of Gms Players per Country Over Time')
+
+    query_asia_choropleth = get_continent_query_for_choropleth('Asia')
+    fig_choropleth_asia = choropleth_map(query_asia_choropleth,
+                                        text="Asia: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
+                                        scope='asia')    
     st.plotly_chart(fig_choropleth_asia)
-    
     st.divider()
     
+    filters.append(f"continent in ('Asia')")
+    min_rating = get_min_rating(continent='Asia')
+    max_rating = get_max_rating(continent='Asia')
+    rating_header, slider_rating = filter_rating(min_rating, max_rating)
+    
+    if slider_rating:
+    
+        filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
+    
+    main_query = get_main_query(filters=filters)
+    query_rating = get_rating_query(filters=filters)
+
+    #st.write(query_rating)
+    df = load_data(main_query)
+    df_rating = load_data(query_rating)
+    #st.write(df_rating.head())
+
+    fig_gender, fig_status_activity, fig_title, fig_age, fig_rating = get_five_figures(df= df,
+                                                                                       df_rating= df_rating,
+                                                                                        selected_title= selected_title,
+                                                                                        option_age= option_age)
+    
+    create_placeholder_for_continent_analysis(selected_gender = selected_gender,
+                                              selected_activity_Status = selected_activity_Status,
+                                              selected_title= selected_title,
+                                              selected_age = selected_age,
+                                              filters = filters,
+                                              fig_gender = fig_gender,
+                                              fig_status_activity=fig_status_activity,
+                                              fig_title = fig_title,
+                                              fig_age= fig_age,
+                                              fig_rating = fig_rating) 
+       
+    st.divider()
     expand = st.expander("Asia - Bubble Chart: Median Rating vs Amount og Gms Players per country over time", icon="🫒")
 
     with expand:
     
-        st.plotly_chart(fig_bubble_chart_asia,use_container_width=True)
+        st.plotly_chart(fig_bubble_chart_asia,use_container_width=True)    
+        
+elif 'Europe' in continent_chosen:
+    
+    query_europe_bubble_chart = get_continent_query_for_bubble_chart('Europe')
+    fig_bubble_chart_europe = bubble_chart(query_europe_bubble_chart,
+                                        color_column='subregion',
+                                        text='Europe: Median Rating vs Amount of Gms Players per Country Over Time')
+    query_europe_choropleth = get_continent_query_for_choropleth('Europe')
+    fig_choropleth_europe = choropleth_map(query_europe_choropleth,
+                                        text="Europe: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
+                                        scope='europe')          
 
-with tab4:
-    
     st.plotly_chart(fig_choropleth_europe)
-    
     st.divider()
     
+    filters.append(f"continent in ('Europe')")
+    min_rating = get_min_rating(continent='Europe')
+    max_rating = get_max_rating(continent='Europe')
+    rating_header, slider_rating = filter_rating(min_rating, max_rating)
+    
+    if slider_rating:
+    
+        filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
+    
+    main_query = get_main_query(filters=filters)
+    query_rating = get_rating_query(filters=filters)
+
+    #st.write(query_rating)
+    df = load_data(main_query)
+    df_rating = load_data(query_rating)
+    #st.write(df_rating.head())
+
+    fig_gender, fig_status_activity, fig_title, fig_age, fig_rating = get_five_figures(df= df,
+                                                                                       df_rating= df_rating,
+                                                                                        selected_title= selected_title,
+                                                                                        option_age= option_age)
+    
+    create_placeholder_for_continent_analysis(selected_gender = selected_gender,
+                                              selected_activity_Status = selected_activity_Status,
+                                              selected_title= selected_title,
+                                              selected_age = selected_age,
+                                              filters = filters,
+                                              fig_gender = fig_gender,
+                                              fig_status_activity=fig_status_activity,
+                                              fig_title = fig_title,
+                                              fig_age= fig_age,
+                                              fig_rating = fig_rating) 
+    
+    
+    st.divider()
     expand = st.expander("Europe - Bubble Chart: Median Rating vs Amount og Gms Players per country over time", icon="🫒")
 
     with expand:
     
         st.plotly_chart(fig_bubble_chart_europe,use_container_width=True)
 
-with tab5:
+elif 'Oceania' in continent_chosen:
     
+    query_oceania_bubble_chart = get_continent_query_for_bubble_chart('Oceania')
+    fig_bubble_chart_oceania = bubble_chart(query_oceania_bubble_chart,
+                                        color_column='subregion',
+                                        text='Oceania: Median Rating vs Amount of Gms Players per Country Over Time')
+    query_oceania_choropleth = get_continent_query_for_choropleth('Oceania')
+    fig_choropleth_oceania = choropleth_map(query_oceania_choropleth,
+                                        text="Oceania: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
+                                       )
+                                       # center={'lat': -26.853388, 'lon': 133.275154}) 
     st.plotly_chart(fig_choropleth_oceania)
+    
+    st.divider()
+    filters.append(f"continent in ('Oceania')")
+    min_rating = get_min_rating(continent='Oceania')
+    max_rating = get_max_rating(continent='Oceania')
+    rating_header, slider_rating = filter_rating(min_rating, max_rating)
+    
+    if slider_rating:
+    
+        filters.append(f"muomv.rating >= {slider_rating[0]} AND muomv.rating <= {slider_rating[1]}")   
+    
+    main_query = get_main_query(filters=filters)
+    query_rating = get_rating_query(filters=filters)
+
+    #st.write(query_rating)
+    df = load_data(main_query)
+    df_rating = load_data(query_rating)
+    #st.write(df_rating.head())
+
+    fig_gender, fig_status_activity, fig_title, fig_age, fig_rating = get_five_figures(df= df,
+                                                                                       df_rating= df_rating,
+                                                                                        selected_title= selected_title,
+                                                                                        option_age= option_age)
+    
+    create_placeholder_for_continent_analysis(selected_gender = selected_gender,
+                                              selected_activity_Status = selected_activity_Status,
+                                              selected_title= selected_title,
+                                              selected_age = selected_age,
+                                              filters = filters,
+                                              fig_gender = fig_gender,
+                                              fig_status_activity=fig_status_activity,
+                                              fig_title = fig_title,
+                                              fig_age= fig_age,
+                                              fig_rating = fig_rating) 
+    
     
     st.divider()
     
@@ -246,7 +376,6 @@ with tab5:
     with expand:
     
         st.plotly_chart(fig_bubble_chart_oceania,use_container_width=True)
-
     
 
-st.sidebar.title('Filters')
+
