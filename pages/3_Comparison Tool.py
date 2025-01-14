@@ -31,4 +31,4 @@ fig_bubble_chart_comparison = bubble_chart(query_comparison_country_bubble_chart
                                         color_column='country',
                                         text= f'Median Rating vs Amount of Gms Players of {first_country} and {second_country} Over Time')
 
-st.plotly_chart(fig_bubble_chart_comparison)
+st.plotly_chart(fig_bubble_chart_comparison, use_container_width=True)
