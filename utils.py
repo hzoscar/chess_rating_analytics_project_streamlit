@@ -166,6 +166,39 @@ def get_continent_query_for_choropleth(continent:str) -> str:
 """
     return query
 
+def get_country_query_for_bubble_chart(country_1:str, country_2:str) -> str:
+    
+    query = f"""
+    SELECT 
+    c.country,
+    mu.Ongoing_date AS "date",    
+    COUNT(mu.title) AS "count of titled players",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
+    COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
+    FROM MontlhyUpdates mu
+    LEFT JOIN countries c ON mu.fed = c.code    
+    WHERE Group_index = 'O'  
+    AND country in ('{country_1}','{country_2}')
+    
+    GROUP BY c.country, mu.Ongoing_date
+    ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
+    """
+    return query
+
+    
+def get_list_countries() -> list:
+    query = """
+    select
+	c.country 	
+    from countries c
+    where c.code in(select m.fed 
+				from montlhyupdates m) and c.country not in ('FIDE', 'NON FEDERATION')
+    order by country
+    """
+    df = load_data(query)
+    
+    return df['country'].tolist()
+
 ###################################################
 # mesures
 ###################################################   
@@ -303,7 +336,7 @@ def bubble_chart(
     df['date'] = df["date"].dt.strftime("%Y-%m")
 
     # Define a custom color sequence for the chart
-    custom_color_sequence = [ "maroon", "olivedrab","cornflowerblue", "chocolate","darkkhaki"]
+    custom_color_sequence = [ "cornflowerblue","darkkhaki","maroon", "olivedrab", "chocolate"]
     # Create an animated scatter plot using Plotly
     fig = px.scatter(
         df,
