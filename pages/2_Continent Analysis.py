@@ -88,7 +88,6 @@ if selected_age:
     else:
         filters.append(f"age_category in ('{selected_age[0]}')")     
 
-
 # Subheader
 st.subheader("Choose a continent to explore:")
 

@@ -185,19 +185,69 @@ def get_country_query_for_bubble_chart(country_1:str, country_2:str) -> str:
     """
     return query
 
-    
 def get_list_countries() -> list:
     query = """
     select
-	c.country 	
+    c.country 	
     from countries c
     where c.code in(select m.fed 
-				from montlhyupdates m) and c.country not in ('FIDE', 'NON FEDERATION')
+                from montlhyupdates m) and c.country not in ('FIDE', 'NON FEDERATION')
     order by country
     """
     df = load_data(query)
     
     return df['country'].tolist()
+
+def get_country_query_for_comparison_tool(filters:list) -> str:
+    # Base query components
+    with_clause = """
+    WITH pre_aggregations AS (
+        SELECT 
+            muomv.ongoing_date,
+            COUNT(*) AS total_players,
+            COUNT(CASE WHEN sex = 'M' THEN 1 END) AS total_men,
+            COUNT(CASE WHEN sex = 'F' THEN 1 END) AS total_women,                       
+            COUNT(CASE WHEN muomv.title IN ('CM','FM','IM','WCM','WFM','WGM','WH','WIM')  THEN 1 END)  AS total_other_titles,
+            COUNT(CASE WHEN muomv.title = 'GM' THEN 1 END)  AS total_GM,
+            COUNT(CASE WHEN muomv.title = 'NT' THEN 1 END)  AS total_NT,    
+            COUNT(CASE WHEN muomv.activity_status = 'a' THEN 1 END)  AS total_active_players,
+            COUNT(CASE WHEN muomv.activity_status = 'i' THEN 1 END) AS total_inactive_players,    
+            COUNT(CASE WHEN muomv.age_category = 'Less than 19' THEN 1 END)  AS total_less_than_19,
+            COUNT(CASE WHEN muomv.age_category = '19-30' THEN 1 END) AS total_19_to_30,
+            COUNT(CASE WHEN muomv.age_category = '31-40' THEN 1 END) AS total_31_to_40,
+            COUNT(CASE WHEN muomv.age_category = '41-50' THEN 1 END) AS total_41_to_50,
+            COUNT(CASE WHEN muomv.age_category = '51-65' THEN 1 END) AS total_51_to_65,
+            COUNT(CASE WHEN muomv.age_category = 'More than 66' THEN 1 END)  AS total_more_than_66
+        FROM   montlhyupdate_open_players_with_age_group_mv muomv
+        LEFT JOIN players p ON muomv.ID = p.ID
+        LEFT JOIN countries c ON muomv.fed = c.code
+    """
+    with_clause += " WHERE " + " AND ".join(filters)
+    with_clause += """
+    GROUP BY ongoing_date
+    )
+    """    
+    # Final SELECT statement
+    query = with_clause + """
+    SELECT
+        ongoing_date AS date,
+        ROUND(total_men * 1.0 / NULLIF(total_players, 0), 2) AS percentage_men,
+        ROUND(total_women * 1.0 / NULLIF(total_players, 0), 2) AS percentage_women,        
+        ROUND(total_other_titles * 1.0 / NULLIF(total_players, 0), 2) AS percentage_other_titles,
+        ROUND(total_GM * 1.0 / NULLIF(total_players, 0), 2) AS percentage_GM,
+        ROUND(total_NT * 1.0 / NULLIF(total_players, 0), 2) AS percentage_NT,    
+        ROUND(total_active_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_active_players,
+        ROUND(total_inactive_players * 1.0 / NULLIF(total_players, 0), 2) AS percentage_inactive_players,    
+        ROUND(total_less_than_19 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_less_than_19,
+        ROUND(total_19_to_30 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_19_to_30,
+        ROUND(total_31_to_40 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_31_to_40,
+        ROUND(total_41_to_50 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_41_to_50,
+        ROUND(total_51_to_65 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_51_to_65,
+        ROUND(total_more_than_66 * 1.0 / NULLIF(total_players, 0), 2) AS percentage_more_than_66
+    FROM pre_aggregations
+    ORDER BY ongoing_date ASC
+    """    
+    return query
 
 ###################################################
 # mesures
@@ -274,6 +324,25 @@ def get_count_unique_countries(filters:list) -> int:
     
     return count_unique_countries
 
+def get_metrics_comparison(query:str,
+                           first_country:str,
+                           second_country:str):
+    
+    df_metrics = load_data(query)
+    df_metrics['date'] = pd.to_datetime(df_metrics['date'])
+    last_date = df_metrics['date'].max()
+    df_metrics = df_metrics[df_metrics['date'] == last_date]
+
+    first_country_count_titled_players = df_metrics[df_metrics['country'] == first_country]['count of titled players'].values[0]
+    first_country_median_rating = df_metrics[df_metrics['country'] == first_country]['median of rating'].values[0]
+    first_country_count_gms = df_metrics[df_metrics['country'] == first_country]['count of Gm'].values[0]
+    
+    second_country_count_titled_players = df_metrics[df_metrics['country'] == second_country]['count of titled players'].values[0]
+    second_country_median_rating = df_metrics[df_metrics['country'] == second_country]['median of rating'].values[0]
+    second_country_count_gms = df_metrics[df_metrics['country'] == second_country]['count of Gm'].values[0]
+    
+    return last_date, first_country_count_titled_players, first_country_median_rating, first_country_count_gms, second_country_count_titled_players, second_country_median_rating, second_country_count_gms
+    
 ###################################################
 # Charts
 ###################################################
@@ -795,6 +864,60 @@ def get_five_figures(df: pd.DataFrame,
     
     return fig_gender, fig_status_activity, fig_title, fig_age, fig_rating
 
+def rating_violin_chart_for_comparison_tool(first_country: str,
+                                            second_country: str,
+                                            df_first_country: pd.DataFrame,
+                                            df_second_country: pd.DataFrame,
+                                            text: str,
+                                            subtitle: dict)-> go.Figure:
+
+    # Example: Ensure your 'date' column is in the correct format
+    df_first_country["date"] = pd.to_datetime(df_first_country["date"])
+    df_second_country["date"] = pd.to_datetime(df_second_country["date"])
+    # Generate the tick values and labels
+    #tick_vals = df["date"]
+    tick_labels = df_first_country["date"].dt.strftime("%Y-%m").unique()
+    
+    
+    fig_rating = go.Figure()
+
+    fig_rating.add_trace(go.Violin(x=df_first_country['date'],
+                            y=df_first_country['rating'],
+                            legendgroup=first_country, scalegroup=first_country, name=first_country,
+                            side='negative',
+                            line_color='teal')
+                )
+    
+    fig_rating.add_trace(go.Violin(x=df_second_country['date'],
+                            y=df_second_country['rating'],
+                            legendgroup=second_country, scalegroup=second_country, name=second_country,
+                            side='positive',
+                            line_color='indigo')
+                )
+
+    fig_rating.update_traces(meanline_visible=True)
+    fig_rating.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Rating",
+        width=800,
+        height=400,
+        title= customize_title_charts(
+            text=text,
+            subtitle=subtitle),
+        font=dict(
+            family="Courier New, monospace",
+            size=12),
+        violingap=0.25,
+        violinmode='overlay')
+
+    fig_rating.update_xaxes(
+        tickvals=tick_labels,
+        ticktext=tick_labels,
+        tickangle=45  # Rotate labels for better readability
+    )
+    
+    return fig_rating
 ###################################################
 # Filters
 ###################################################
@@ -949,7 +1072,69 @@ def filter_rating(min_rating:int, max_rating:int):
     
     
     return rating_header, slider_rating
+
+def filters_for_comparison_tool(country: str,
+                                selected_gender: list,
+                                selected_activity_Status: list,
+                                selected_title: list,
+                                selected_age: list) -> list:
     
+    filters = ["EXTRACT(MONTH FROM muomv.ongoing_date) = (SELECT get_last_month())",f"c.country = '{country}'"]
+    
+    if selected_gender:
+        
+        if len(selected_gender) > 1:
+        
+            filters.append(f"sex in {tuple(selected_gender)}")
+            
+        else:
+            filters.append(f"sex in ('{selected_gender[0]}')")
+
+    if selected_activity_Status:
+        
+        if len(selected_activity_Status) > 1:
+        
+            filters.append(f"activity_status in {tuple(selected_activity_Status)}")
+            
+        else:
+            filters.append(f"activity_status in ('{selected_activity_Status[0]}')")
+        
+    other_titles_list = ['CM','FM','IM','WCM','WFM','WGM','WH','WIM'] 
+            
+    if selected_title:
+        
+        if 'other_titles' in selected_title:
+            
+            if len(selected_title) == 1:
+                    
+                filters.append(f"title in {tuple(other_titles_list)}")
+
+            else:
+                option_to_consider_title = [i for i in selected_title if i != 'other_titles']
+                option_to_consider_title.extend(other_titles_list)
+                
+                filters.append(f"title in {tuple(option_to_consider_title)}")
+                
+        else:
+            
+            if len(selected_title) > 1:
+        
+                filters.append(f"title in {tuple(selected_title)}")
+            
+            else:
+                filters.append(f"title in ('{selected_title[0]}')")
+
+    if selected_age:
+        
+        if len(selected_age) > 1:
+        
+            filters.append(f"age_category in {tuple(selected_age)}")
+            
+        else:
+            filters.append(f"age_category in ('{selected_age[0]}')")     
+
+    return filters
+
 ####################################################
 # Structure
 ####################################################
