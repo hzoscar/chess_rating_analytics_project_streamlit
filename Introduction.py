@@ -5,7 +5,7 @@ warnings.filterwarnings('ignore')
 
 # query 
 query = """
-            SELECT 
+    SELECT 
     c.country,
     c.continent,
     mu.Ongoing_date AS "date",
