@@ -24,9 +24,9 @@ st.set_page_config(layout="wide")
 
 # Title and subtitle
 st.title("Global Chess Trends Explorer Project! :chess_pawn:")
-st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
+st.subheader("Analysis of the top 100 players from every nation")
 
-st.markdown(""" Here is a taste of what you'll find here: This interactive bubble plot visualizes the relationship between the median Elo rating
+st.markdown(""" Here is a taste of what you'll find in this project: This interactive bubble plot visualizes the relationship between the median Elo rating
                     and the number of Grandmaster (Gm) players for different countries **over the last 10 years**. Each bubble
                     represents a country and varies in size according to the number of titled players in that country.
                     **It's important to mention that the data contains only the top 100 strongest players by rating from each country.** 
@@ -60,15 +60,14 @@ with expand:
     Given that the primary goal of this project is **to gain insights into how well countries perform in chess**,
     I decided to **focus on the top 100 strongest players from each country by rating over the last 10 years**.
     
-    The project consists of seven pages:
+    The project consists of six pages:
     
     1. **Introduction:** This page provides an overview of the project.
     2. **Outlook:** Offers a high-level view of the data and key insights.
     3. **Continent Analysis:** Examines performance and trends by continent.
-    4. **Subregion and Country Analysis:** Dives deeper into subregional and country-level performance.
-    5. **Comparison Tool:** Allows comparisons between two countries or regions over a selected period.
-    6. **Top 5 Chess Players:** Highlights the top 5 players over time.
-    7. **Ask a Question:** A bot that answers custom queries directly from the database.
+    4. **Comparison Tool:** Allows comparisons between two countries or regions over a selected period.
+    5. **Top 5 Chess Players:** Highlights the top 5 players over time.
+    6. **Ask a Question:** A bot that answers custom queries directly from the database.
     """)
 
 # Data section
