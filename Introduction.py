@@ -10,7 +10,7 @@ query = """
     c.continent,
     mu.Ongoing_date AS "date",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm",
-    COUNT(mu.title) AS "count of titled players",
+    COUNT(CASE WHEN mu.title != 'NT' THEN 1 END) AS "count of titled players",
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating"
 FROM MontlhyUpdates mu
 LEFT JOIN countries c ON mu.fed = c.code    

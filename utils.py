@@ -136,7 +136,7 @@ def get_continent_query_for_bubble_chart(continent:str) -> str:
     c.country,    
     c.subregion,
     mu.Ongoing_date AS "date",    
-    COUNT(mu.title) AS "count of titled players",
+    COUNT(CASE WHEN mu.title != 'NT' THEN 1 END) AS "count of titled players",
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM MontlhyUpdates mu
