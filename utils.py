@@ -918,6 +918,116 @@ def rating_violin_chart_for_comparison_tool(first_country: str,
     )
     
     return fig_rating
+
+def variation_rating_player_line_chart(player_selected:str,
+                                       text:str,
+                                       subtitle:dict) -> go.Figure:    
+    query=f"""
+    SELECT
+        fed,
+        rating,
+        ongoing_date as date 
+    FROM montlhyupdates m 
+    WHERE m.id = (select id
+                    from players p 
+                where p.name = '{player_selected}')
+    ORDER BY ongoing_date
+    """
+    df = load_data(query)
+    
+    query_last_month = """SELECT get_last_month()"""
+    last_month = load_data(query_last_month)['get_last_month'].values[0]
+    
+    df['date']=df['date'].astype('str')
+    tick_vals = pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
+    tick_labels =pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
+    df["date"] = pd.to_datetime(df["date"])
+    fig_rating = go.Figure()
+
+    fig_rating.add_trace(go.Scatter(x=df["date"],
+                                y=df["rating"],
+                                name=player_selected,
+                                marker_color="forestgreen")) # royalblue
+    # Customize the layout
+    fig_rating.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Rating",
+        #legend_title=list_top_5_players[0],
+        width=800,
+        height=400,
+        title= customize_title_charts(
+             text=text,
+             subtitle=subtitle        ),
+        font=dict(
+            family="Courier New, monospace",
+            size=12)           
+    )
+    fig_rating.update_xaxes(
+        tickvals=tick_vals,
+        ticktext=tick_labels,
+        tickangle=45  # Rotate labels for better readability
+    )
+    
+    return fig_rating, tick_labels
+
+def variation_games_played_line_chart(player_selected:str,
+                                       text:str,
+                                       subtitle:dict,
+                                       tick_labels) -> go.Figure:    
+    query_last_month = """SELECT get_last_month()"""
+    last_month = load_data(query_last_month)['get_last_month'].values[0]
+    
+    query=f"""
+    SELECT
+        SUM(number_of_games) AS total_games,
+        CASE
+            WHEN EXTRACT(MONTH FROM ongoing_date) >= {last_month} THEN EXTRACT(YEAR FROM ongoing_date) + 1
+            ELSE EXTRACT(YEAR FROM ongoing_date)
+        END AS years
+    FROM montlhyupdates m
+    WHERE m.id = (
+        SELECT id
+        FROM players p
+        WHERE p.name = '{player_selected}'
+    )
+    GROUP BY years
+    ORDER BY years;
+    """
+    
+    df = load_data(query)
+    df['years']=df['years'].apply(lambda x: int(x))
+    
+    fig_games = go.Figure()
+    
+    fig_games.add_trace(go.Scatter(x=df["years"],
+                            y=df["total_games"][:-1],
+                            name=player_selected,
+                            marker_color="slateblue")) # royalblue
+    # Customize the layout
+    fig_games.update_layout(
+        
+        xaxis_title="Date",
+        yaxis_title="Rating",
+        #legend_title=list_top_5_players[0],
+        width=800,
+        height=400,
+        title= customize_title_charts(
+             text=text,
+             subtitle=subtitle ),
+        font=dict(
+            family="Courier New, monospace",
+            size=12)           
+    )
+    fig_games.update_xaxes(
+        tickvals=df["years"],
+        ticktext=tick_labels,
+        tickangle=45  # Rotate labels for better readability
+    )
+    
+    return fig_games
+
+
 ###################################################
 # Filters
 ###################################################
