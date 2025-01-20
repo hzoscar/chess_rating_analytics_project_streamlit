@@ -88,17 +88,20 @@ if selected_age:
     else:
         filters.append(f"age_category in ('{selected_age[0]}')")     
 
-# Subheader
-st.subheader("Choose a continent to explore:")
+container_continent_options = st.container(border=False)
 
-# Add a blank spacer with reduced size
-st.write("")  # Acts as a spacer
-continent_chosen = st.radio(
-    "Select a Continent",
-    ('Africa 	:desert:', 'Americas 	:statue_of_liberty:', 'Asia 	:japanese_castle:', 'Europe :european_castle:', 'Oceania :desert_island:'),
-    horizontal=True,
-    label_visibility='hidden'
-)
+with container_continent_options:
+    
+    col1, col2, col3 = st.columns([1,3,1])
+    # Subheader
+    #col2.subheader("Choose a continent to explore:")
+    continent_chosen = col2.radio(
+        "Select a Continent",
+        ('Africa', 'Americas', 'Asia', 'Europe', 'Oceania'),
+        #('Africa 	:desert:', 'Americas 	:statue_of_liberty:', 'Asia 	:japanese_castle:', 'Europe :european_castle:', 'Oceania :desert_island:'),
+        horizontal=True,
+        label_visibility='hidden'
+    )
 
 if 'Africa' in continent_chosen:
     
@@ -112,11 +115,11 @@ if 'Africa' in continent_chosen:
                                         scope='africa',
                                         text="Africa: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>")
     
-    container_choropleth = st.container(border=True)
+    container_choropleth = st.container(border=False)
     
     with container_choropleth:
-    
-        st.plotly_chart(fig_choropleth_africa)    
+        col1, col2, col3 = st.columns([1,3,1])
+        col2.plotly_chart(fig_choropleth_africa,use_container_width=True)    
     
     
     expand_anlysis_part = st.expander("Africa - Interactive Filter Analysis", icon="🕵️‍♂️")
@@ -175,10 +178,11 @@ elif 'Americas' in continent_chosen:
                                         text="Americas: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
                                         center= {'lat': 8.983333, 'lon': -79.516670}) #Panama
     
-    container_choropleth = st.container(border=True)
+    container_choropleth = st.container(border=False)
     
     with container_choropleth:
-        st.plotly_chart(fig_choropleth_americas)
+        col1, col2, col3 = st.columns([1,4,1])
+        col2.plotly_chart(fig_choropleth_americas, use_container_width=True)
     
     expand_anlysis_part = st.expander("Americas - Interactive Filter Analysis", icon="🕵️‍♂️")
 
@@ -235,10 +239,11 @@ elif 'Asia' in continent_chosen:
                                         text="Asia: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
                                         scope='asia')    
     
-    container_choropleth = st.container(border=True)
+    container_choropleth = st.container(border=False)
     
     with container_choropleth:
-        st.plotly_chart(fig_choropleth_asia)
+        col1, col2, col3 = st.columns([1,4,1])
+        col2.plotly_chart(fig_choropleth_asia, use_container_width=True)
     
     expand_anlysis_part = st.expander("Asia - Interactive Filter Analysis", icon="🕵️‍♂️")
 
@@ -295,10 +300,11 @@ elif 'Europe' in continent_chosen:
                                         text="Europe: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
                                         scope='europe')          
 
-    container_choropleth = st.container(border=True)
+    container_choropleth = st.container(border=False)
     
     with container_choropleth:
-        st.plotly_chart(fig_choropleth_europe)
+        col1, col2, col3 = st.columns([1,4,1])
+        col2.plotly_chart(fig_choropleth_europe, use_container_width=True)
     
     expand_anlysis_part = st.expander("Europe - Interactive Filter Analysis", icon="🕵️‍♂️")
 
@@ -354,10 +360,11 @@ elif 'Oceania' in continent_chosen:
                                         text="Oceania: Current Month's Median Rating, <br> Featuring the Top 100 Players by Country <br>",
                                        )
                                        # center={'lat': -26.853388, 'lon': 133.275154}) 
-    container_choropleth = st.container(border=True)
+    container_choropleth = st.container(border=False)
     
     with container_choropleth:
-        st.plotly_chart(fig_choropleth_oceania)
+        col1, col2, col3 = st.columns([1,4,1])
+        col2.plotly_chart(fig_choropleth_oceania)
     
     expand_anlysis_part = st.expander("Oceania - Interactive Filter Analysis", icon="🕵️‍♂️")
 

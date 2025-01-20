@@ -22,7 +22,7 @@ from utils import rating_violin_chart
 
 st.set_page_config(layout="wide")
 # Title and subtitle
-st.title("Outlook :ringed_planet:")
+st.title("Outlook 	:earth_africa:")
 st.subheader("Discover Metrics, Trends, and Insights from the World of Chess")
 
 st.sidebar.title('Filters')
