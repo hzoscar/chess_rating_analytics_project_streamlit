@@ -965,7 +965,7 @@ def variation_rating_player_line_chart(player_selected:str,
         
         query_last_month = """SELECT get_last_month()"""
         last_month = load_data(query_last_month)['get_last_month'].values[0]
-        
+        last_month += 1
         df['date']=df['date'].astype('str')
         tick_vals = pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
         tick_labels =pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
@@ -1011,12 +1011,12 @@ def variation_games_played_line_chart(player_selected:str,
         
         query_last_month = """SELECT get_last_month()"""
         last_month = load_data(query_last_month)['get_last_month'].values[0]
-        
+                
         query=f"""
         SELECT
             SUM(number_of_games) AS total_games,
             CASE
-                WHEN EXTRACT(MONTH FROM ongoing_date) >= {last_month} THEN EXTRACT(YEAR FROM ongoing_date)
+                WHEN EXTRACT(MONTH FROM ongoing_date) >= {last_month + 1} THEN EXTRACT(YEAR FROM ongoing_date)
                 ELSE EXTRACT(YEAR FROM ongoing_date) - 1
             END AS years
         FROM montlhyupdates m
@@ -1035,7 +1035,7 @@ def variation_games_played_line_chart(player_selected:str,
         fig_games = go.Figure()
         
         fig_games.add_trace(go.Scatter(x=df["years"],
-                                y=df["total_games"][:-1],
+                                y=df["total_games"][1:],
                                 name=player_selected,
                                 marker_color="slateblue")) # royalblue
         # Customize the layout
@@ -1055,7 +1055,7 @@ def variation_games_played_line_chart(player_selected:str,
         )
         fig_games.update_xaxes(
             tickvals=df["years"],
-            ticktext=df['years'].apply(lambda row:str(row)+'-11'),
+            ticktext=df['years'][1:].apply(lambda row:str(row)+'-'+str(last_month)),
             tickangle=45  # Rotate labels for better readability
         )
     
