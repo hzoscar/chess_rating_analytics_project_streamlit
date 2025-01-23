@@ -14,8 +14,7 @@ query = """
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating"
 FROM MontlhyUpdates mu
 LEFT JOIN countries c ON mu.fed = c.code    
-WHERE Group_index = 'O'  
-  AND FED not in ('NON','FID')   
+WHERE FED not in ('NON','FID')   
 GROUP BY c.country, mu.Ongoing_date, c.continent
 ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
 
@@ -107,8 +106,6 @@ with expand:
     (inactive if no professional game was played in the past year).
     - `number_of_games`: Number of games played in the current month.
     - `title`: Chess title of the player.
-    - `fed`: Federation the player represents.
-    - `group_index`: Custom attribute with four values: Open, Women, Junior Open, 
-    and Junior Women. (For this project, all queries use `group_index='Open').
+    - `fed`: Federation the player represents.   
     - `ongoing_date`: The date the data was recorded.
     """)

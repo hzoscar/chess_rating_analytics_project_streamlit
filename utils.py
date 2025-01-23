@@ -141,8 +141,7 @@ def get_continent_query_for_bubble_chart(continent:str) -> str:
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM MontlhyUpdates mu
     LEFT JOIN countries c ON mu.fed = c.code    
-    WHERE Group_index = 'O'  
-    AND continent = '{continent}'
+    WHERE continent = '{continent}'
     
     GROUP BY c.country, mu.Ongoing_date, c.continent, c.subregion
     ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
@@ -177,8 +176,7 @@ def get_country_query_for_bubble_chart(country_1:str, country_2:str) -> str:
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM MontlhyUpdates mu
     LEFT JOIN countries c ON mu.fed = c.code    
-    WHERE Group_index = 'O'  
-    AND country in ('{country_1}','{country_2}')
+    WHERE country in ('{country_1}','{country_2}')
     
     GROUP BY c.country, mu.Ongoing_date
     ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
