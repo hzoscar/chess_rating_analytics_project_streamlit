@@ -113,12 +113,16 @@ top_players.to_csv(top_players_path, index= False)
 ###################################################
 import pandas as pd
 import bar_chart_race as bcr
+from sqlalchemy import create_engine
 from utils_update_data import load_data
+import warnings
+warnings.filterwarnings('ignore')
 
 query = """SELECT *
         FROM top_10_open_players_over_time_view
        ;        
         """
+# df = load_data(engine,query)
 df = load_data(query)
 
 df["date"] = pd.to_datetime(df["ongoing_date"])
@@ -131,7 +135,9 @@ pivot_df = df.pivot_table(
 )
 pivot_df.shape
 
-# Create the animation and assign it to a variable
+import bar_chart_race as bcr
+
+# Generate the animation
 anim = bcr.bar_chart_race(
     df=pivot_df,
     title='Top 5 Chess Players Over The last 10 Years',
@@ -145,8 +151,6 @@ anim = bcr.bar_chart_race(
     dpi=120,
     bar_size=.7,
     period_label={'x': .4, 'y': .93},
-    
-    filter_column_colors=False    
+    filter_column_colors=False,
+    filename='top_5_chess_players_over_time.mp4' 
 )
-
-anim

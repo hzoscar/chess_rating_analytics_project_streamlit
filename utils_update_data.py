@@ -2,7 +2,10 @@ import pandas as pd
 from sqlalchemy import create_engine, select, Table, MetaData, text
 from sqlalchemy.exc import SQLAlchemyError
 import zipfile
-
+import os
+from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
 ###################################################
 # Conection database
 ###################################################
@@ -137,7 +140,7 @@ def check_country_code(df):
     SELECT distinct  c.code
     FROM countries c
     """
-    df_historic_fed = load_data(engine,query)
+    df_historic_fed = load_data(query)
     historic_fed_list = df_historic_fed['code'].to_list()
     check_codes = df[~df['Fed'].isin(historic_fed_list)]['Fed'].unique()
     if len(check_codes) > 0:
