@@ -28,6 +28,3 @@ def test_credentials() -> str:
 
     return database_url
 
-
-# # Other global constants
-# PAGE_TITLE = "Chess Analytics"
