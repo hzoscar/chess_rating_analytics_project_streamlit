@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 from utils_update_data import add_column_date, check_column, check_country_code, clean_df, clean_names, load_data, move_files, refresh_materialized_view, update_montlhyupdates_table_sqlalchemy, update_players_table_sqlalchemy
 from utils_update_data import extract_zip, get_connection_url, replace_wrongcountry_code_with_right_country_code
 import bar_chart_race as bcr
+import warnings
+warnings.filterwarnings('ignore')
 
 ###################################################
 # Set up the variables
@@ -112,12 +114,6 @@ top_players.to_csv(top_players_path, index= False)
 ###################################################
 # update bar chart race - video
 ###################################################
-import pandas as pd
-import bar_chart_race as bcr
-from sqlalchemy import create_engine
-from utils_update_data import load_data
-import warnings
-warnings.filterwarnings('ignore')
 
 query = """SELECT *
         FROM top_10_open_players_over_time_view
