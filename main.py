@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import bubble_chart
+from utils_pages import bubble_chart
 import warnings
 warnings.filterwarnings('ignore')
 

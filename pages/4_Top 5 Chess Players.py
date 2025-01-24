@@ -1,11 +1,11 @@
 import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
-from utils import load_data
-from utils import variation_rating_player_line_chart
-from utils import variation_games_played_line_chart
-from utils import get_avg_rating_player_current_year
-from utils import get_avg_games_played_monthly
+from utils_pages import load_data
+from utils_pages import variation_rating_player_line_chart
+from utils_pages import variation_games_played_line_chart
+from utils_pages import get_avg_rating_player_current_year
+from utils_pages import get_avg_games_played_monthly
 
 st.set_page_config(layout="wide")
 # Title and subtitle

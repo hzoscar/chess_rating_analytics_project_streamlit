@@ -1,24 +1,24 @@
 import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
-from utils import load_data
-from utils import get_min_rating
-from utils import get_max_rating
-from utils import get_main_query
-from utils import get_average_of_median_rating_over_time
-from utils import get_count_unique_countries
-from utils import get_rating_query
-from utils import filter_gender
-from utils import filter_activity_status
-from utils import filter_title
-from utils import filter_age_group
-from utils import filter_rating
-from utils import gender_bar_chart
-from utils import activity_status_bar_chart
-from utils import continents_line_chart
-from utils import title_line_chart
-from utils import age_group_heat_map
-from utils import rating_violin_chart
+from utils_pages import load_data
+from utils_pages import get_min_rating
+from utils_pages import get_max_rating
+from utils_pages import get_main_query
+from utils_pages import get_average_of_median_rating_over_time
+from utils_pages import get_count_unique_countries
+from utils_pages import get_rating_query
+from utils_pages import filter_gender
+from utils_pages import filter_activity_status
+from utils_pages import filter_title
+from utils_pages import filter_age_group
+from utils_pages import filter_rating
+from utils_pages import gender_bar_chart
+from utils_pages import activity_status_bar_chart
+from utils_pages import continents_line_chart
+from utils_pages import title_line_chart
+from utils_pages import age_group_heat_map
+from utils_pages import rating_violin_chart
 
 st.set_page_config(layout="wide")
 # Title and subtitle
