@@ -61,7 +61,6 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 3. **Continent Analysis**: Regional performance and trends.
 4. **Comparison Tool**: Compare two countries/regions across a selected period.
 5. **Top 5 Chess Players**: Dynamic bar chart race showing top players over time.
-6. **Ask a Question**: AI bot that queries the database for custom insights (in progress).
 
 ---
 
@@ -79,14 +78,7 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 
 ---
 
-## 7. SQL Agents (In Progress)
-
-- Developing **AI SQL agents** for dynamic interaction with the database.
-- Enable users to execute advanced queries and gain custom insights.
-
----
-
-## 8. Deployment (In Progress)
+## 7. Deployment (In Progress)
 
 - Currently working on finalizing the deployment strategy to make the app accessible online.
 
@@ -94,7 +86,6 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 
 ## Future Work
 
-- Complete the integration of SQL agents.
 - Finalize deployment to make the application publicly accessible.
 - Explore additional features to enhance user interaction and insights.
 
