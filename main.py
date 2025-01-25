@@ -66,7 +66,7 @@ with expand:
     3. **Continent Analysis:** Examines performance and trends by continent.
     4. **Comparison Tool:** Allows comparisons between two countries or regions over a selected period.
     5. **Top 5 Chess Players:** Highlights the top 5 players over time.
-    6. **Ask a Question:** A bot that answers custom queries directly from the database.
+    
     """)
 
 # Data section
