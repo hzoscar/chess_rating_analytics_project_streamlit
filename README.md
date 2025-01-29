@@ -3,7 +3,7 @@
 
 ## Overview
 
-This project leverages data from FIDE (International Chess Federation) to provide interactive insights into chess player performance and trends over the past decade. The application updates monthly to incorporate the latest data and remains a work in progress as additional features, like AI agents and final deployment, are being developed.
+This project leverages data from FIDE (International Chess Federation) to provide interactive insights into chess player performance and trends over the past decade. The application updates monthly to incorporate the latest data and remains a work in progress as additional features and final deployment, are being developed.
 
 ---
 
