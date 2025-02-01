@@ -963,7 +963,8 @@ def variation_rating_player_line_chart(player_selected:str,
         
         query_last_month = """SELECT get_last_month()"""
         last_month = load_data(query_last_month)['get_last_month'].values[0]
-        #last_month += 1
+        if last_month < 10:
+            last_month = '-0'+str(last_month)+'-'
         df['date']=df['date'].astype('str')
         tick_vals = pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
         tick_labels =pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
