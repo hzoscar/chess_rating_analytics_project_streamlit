@@ -1027,6 +1027,11 @@ def variation_games_played_line_chart(player_selected:str,
         GROUP BY years
         ORDER BY years;
         """
+        if last_month == 1:
+            last_month = 12
+        else:
+            last_month = last_month - 1
+        
         
         df = load_data(query)
         df['years']=df['years'].apply(lambda x: int(x))
