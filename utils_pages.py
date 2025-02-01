@@ -315,6 +315,7 @@ def get_count_unique_countries(filters:list) -> int:
     RIGHT JOIN montlhyupdate_open_players_with_age_group_mv muomv ON c.code = muomv.fed
     LEFT JOIN players p ON muomv.ID = p.ID
     """
+    filters.append("FED not in ('NON','FID')")
     query += " WHERE " + " AND ".join(filters)
     
     df = load_data(query)
