@@ -703,6 +703,14 @@ def title_line_chart(
         ticktext=tick_labels,
         tickangle=45  # Rotate labels for better readability
     )
+    
+    fig_title.update_yaxes(
+        tickvals=[0, 0.2, 0.4, 0.6, 0.8,1],
+        ticktext=[0, 0.2, 0.4, 0.6, 0.8,1],
+        tickmode="array",  # Ensure only these tick values are used
+    range=[0, 1]  # Set fixed range
+    )
+    
 
     return fig_title
 
