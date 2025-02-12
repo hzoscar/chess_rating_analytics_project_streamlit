@@ -786,7 +786,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.add_trace(go.Violin(x=df['date'],
                             y=df['rating'],
                             legendgroup='Yes', scalegroup='Yes', name='Yes',
-                            side='negative',
+                            side='positive', #negative
                             line_color='teal')
                 )
 
@@ -809,7 +809,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.update_xaxes(
         tickvals=tick_labels,
         ticktext=tick_labels,
-        tickangle=45  # Rotate labels for better readability
+        tickangle=60  # Rotate labels for better readability
     )
     
     return fig_rating
@@ -1002,7 +1002,14 @@ def variation_rating_player_line_chart(player_selected:str,
         fig_rating.update_xaxes(
             tickvals=tick_vals,
             ticktext=tick_labels,
-            tickangle=45  # Rotate labels for better readability
+            tickangle=75  # Rotate labels for better readability
+        )
+        
+        fig_rating.update_yaxes(
+        tickvals=[i for i in range(2500,2900,100)],
+        ticktext=[i for i in range(2500,2900,100)],
+        tickmode="array",  # Ensure only these tick values are used
+        range=[2500, 2900]  # Set fixed range
         )
         
     return fig_rating
@@ -1069,8 +1076,16 @@ def variation_games_played_line_chart(player_selected:str,
         fig_games.update_xaxes(
             tickvals=df["years"],
             ticktext=df['years'][1:].apply(lambda row:str(row)+'-'+str(last_month)),
-            tickangle=45  # Rotate labels for better readability
+            tickangle=75  # Rotate labels for better readability
         )
+        
+        fig_games.update_yaxes(
+        tickvals=[i for i in range(0,140,35)],
+        ticktext=[i for i in range(0,140,35)],
+        tickmode="array",  # Ensure only these tick values are used
+        range=[0,140]  # Set fixed range
+        )
+        
     
     return fig_games
 
