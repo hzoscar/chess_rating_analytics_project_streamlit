@@ -786,7 +786,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.add_trace(go.Violin(x=df['date'],
                             y=df['rating'],
                             legendgroup='Yes', scalegroup='Yes', name='Yes',
-                            side='positive', #negative
+                            side='negative', #positive
                             line_color='teal')
                 )
 
@@ -809,7 +809,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.update_xaxes(
         tickvals=tick_labels,
         ticktext=tick_labels,
-        tickangle=60  # Rotate labels for better readability
+        tickangle=75  # Rotate labels for better readability
     )
     
     return fig_rating
