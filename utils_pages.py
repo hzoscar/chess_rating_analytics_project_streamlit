@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from dotenv import load_dotenv
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import plotly.express as px
@@ -8,18 +10,34 @@ from typing import Optional, Union
 from typing import Optional, Dict
 import streamlit as st
 
+load_dotenv()
 ###################################################
 # Conection database
 ###################################################
 
 def get_connection_url() -> str:
-    """
-    Retrieve the database connection URL from the configuration file.
-    Returns:
-        str: The database connection URL.
-    """
-    from config import test_credentials
-    return test_credentials()
+    # Connection details
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    host = '127.0.0.1'  # Localhost
+    port = '5435'  # Port you used for Cloud SQL Proxy
+    db_name = os.getenv("DB_NAME") 
+    project_id = os.getenv("PROJECT_ID")
+    region = os.getenv("REGION")
+    instance_id = os.getenv("INSTANCE_ID")
+    
+    # Create connection string
+    if os.getenv("ENV") == "local":
+
+        # Create the connection string
+        connection_string = f'postgresql+psycopg2://{db_user}:{db_pass}@{host}:{port}/{db_name}'
+            
+    else:
+        # Production - connect using Unix socket
+        connection_string = f"postgresql://{db_user}:{db_pass}@/{db_name}?host=/cloudsql/{project_id}:{region}:{instance_id}"
+        
+    # Create the SQLAlchemy engine
+    return connection_string
 
 @st.cache_data
 def load_data(query: str) -> pd.DataFrame:
