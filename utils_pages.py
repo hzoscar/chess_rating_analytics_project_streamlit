@@ -15,29 +15,30 @@ load_dotenv()
 # Conection database
 ###################################################
 
+import os
+
 def get_connection_url() -> str:
     # Connection details
     db_user = os.getenv("DB_USER")
     db_pass = os.getenv("DB_PASS")
-    host = '127.0.0.1'  # Localhost
-    port = '5435'  # Port you used for Cloud SQL Proxy
     db_name = os.getenv("DB_NAME") 
     project_id = os.getenv("PROJECT_ID")
     region = os.getenv("REGION")
     instance_id = os.getenv("INSTANCE_ID")
     
-    # Create connection string
     if os.getenv("ENV") == "local":
+        host = '127.0.0.1'  # Localhost
+        port = '5435'  # Port you used for Cloud SQL Proxy
 
-        # Create the connection string
-        connection_string = f'postgresql+psycopg2://{db_user}:{db_pass}@{host}:{port}/{db_name}'
+        # Add search_path in options
+        connection_string = f'postgresql+psycopg2://{db_user}:{db_pass}@{host}:{port}/{db_name}?options=-c%20search_path=project'
             
     else:
-        # Production - connect using Unix socket
-        connection_string = f"postgresql://{db_user}:{db_pass}@/{db_name}?host=/cloudsql/{project_id}:{region}:{instance_id}"
+        # Production - connect using Unix socket with search_path
+        connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@/{db_name}?host=/cloudsql/{project_id}:{region}:{instance_id}&options=-c%20search_path=project"
         
-    # Create the SQLAlchemy engine
     return connection_string
+
 
 @st.cache_data
 def load_data(query: str) -> pd.DataFrame:
@@ -157,7 +158,7 @@ def get_continent_query_for_bubble_chart(continent:str) -> str:
     COUNT(CASE WHEN mu.title != 'NT' THEN 1 END) AS "count of titled players",
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
-    FROM MontlhyUpdates mu
+    FROM montlhyupdates mu
     LEFT JOIN countries c ON mu.fed = c.code    
     WHERE continent = '{continent}'
     
