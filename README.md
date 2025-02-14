@@ -3,7 +3,7 @@
 
 ## Overview
 
-This project leverages data from FIDE (International Chess Federation) to provide interactive insights into chess player performance and trends over the past decade. The application updates monthly to incorporate the latest data and remains a work in progress as additional features, like AI agents and final deployment, are being developed.
+This project leverages FIDE (International Chess Federation) data to provide interactive insights into chess player performance and trends over the past 5 years. The application updates monthly to incorporate the latest data and remains a work in progress as additional features and final deployment, are being developed.  To see a preview [click here!](https://drive.google.com/file/d/1SLC-oTGvW6mfJFyd4r0HZIPEg85sQggm/view)
 
 ---
 
@@ -13,14 +13,13 @@ This project leverages data from FIDE (International Chess Federation) to provid
 - Analysis of the top 100 chess players from each country.
 - Interactive visualizations and data filtering options.
 - Tools to compare countries, analyze trends, and view top players dynamically.
-- AI-driven SQL agents to answer custom database queries (in progress).
 
 ---
 
 ## 1. Data Collection
 
 - Data sourced directly from the FIDE website, updated monthly.
-- Downloaded data spanning 10 years, resulting in **120 text files** with comprehensive player details.
+- Downloaded data spanning 5 years, resulting in **60 text files** with comprehensive player details.
 
 ---
 
@@ -61,7 +60,6 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 3. **Continent Analysis**: Regional performance and trends.
 4. **Comparison Tool**: Compare two countries/regions across a selected period.
 5. **Top 5 Chess Players**: Dynamic bar chart race showing top players over time.
-6. **Ask a Question**: AI bot that queries the database for custom insights (in progress).
 
 ---
 
@@ -79,14 +77,7 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 
 ---
 
-## 7. SQL Agents (In Progress)
-
-- Developing **AI SQL agents** for dynamic interaction with the database.
-- Enable users to execute advanced queries and gain custom insights.
-
----
-
-## 8. Deployment (In Progress)
+## 7. Deployment (In Progress)
 
 - Currently working on finalizing the deployment strategy to make the app accessible online.
 
@@ -94,7 +85,6 @@ Learned Streamlit through a course from ALURA LATAM and developed a **6-page int
 
 ## Future Work
 
-- Complete the integration of SQL agents.
 - Finalize deployment to make the application publicly accessible.
 - Explore additional features to enhance user interaction and insights.
 
