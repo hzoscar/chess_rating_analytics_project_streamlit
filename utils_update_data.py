@@ -159,7 +159,7 @@ def add_column_date(df, rating_column):
     df['Month'] = df['Month'].apply(lambda x: datetime.strptime(x, '%b').month)
 
     # Create a new column with a date format
-    df['Date'] = (pd.to_datetime(df[['Year', 'Month']].assign(Day=1)) + pd.offsets.MonthEnd(0))
+    df['Date'] = (pd.to_datetime(df[['Year', 'Month']].assign(Day=1))) #+ pd.offsets.MonthEnd(0))
     
     #df['Date'] = df['Date'] + pd.DateOffset(months=1)
     

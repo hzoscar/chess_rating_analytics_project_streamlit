@@ -3,9 +3,7 @@
 
 ## Overview
 
-This project leverages FIDE (International Chess Federation) data to provide interactive insights into chess player performance and trends over the past decade. The application updates monthly to incorporate the latest data and remains a work in progress as additional features and final deployment, are being developed.  To see a preview [click here!](https://drive.google.com/file/d/1SLC-oTGvW6mfJFyd4r0HZIPEg85sQggm/view)
-
-
+This project leverages FIDE (International Chess Federation) data to provide interactive insights into chess player performance and trends over the past 5 years. The application updates monthly to incorporate the latest data and remains a work in progress as additional features and final deployment, are being developed.  To see a preview [click here!](https://drive.google.com/file/d/1SLC-oTGvW6mfJFyd4r0HZIPEg85sQggm/view)
 
 ---
 
@@ -15,14 +13,13 @@ This project leverages FIDE (International Chess Federation) data to provide int
 - Analysis of the top 100 chess players from each country.
 - Interactive visualizations and data filtering options.
 - Tools to compare countries, analyze trends, and view top players dynamically.
-- AI-driven SQL agents to answer custom database queries (in progress).
 
 ---
 
 ## 1. Data Collection
 
 - Data sourced directly from the FIDE website, updated monthly.
-- Downloaded data spanning 10 years, resulting in **120 text files** with comprehensive player details.
+- Downloaded data spanning 5 years, resulting in **60 text files** with comprehensive player details.
 
 ---
 

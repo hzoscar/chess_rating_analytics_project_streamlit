@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from dotenv import load_dotenv
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import plotly.express as px
@@ -8,18 +10,35 @@ from typing import Optional, Union
 from typing import Optional, Dict
 import streamlit as st
 
+load_dotenv()
 ###################################################
 # Conection database
 ###################################################
 
+import os
+
 def get_connection_url() -> str:
-    """
-    Retrieve the database connection URL from the configuration file.
-    Returns:
-        str: The database connection URL.
-    """
-    from config import test_credentials
-    return test_credentials()
+    # Connection details
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    db_name = os.getenv("DB_NAME") 
+    project_id = os.getenv("PROJECT_ID")
+    region = os.getenv("REGION")
+    instance_id = os.getenv("INSTANCE_ID")
+    
+    if os.getenv("ENV") == "local":
+        host = '127.0.0.1'  # Localhost
+        port = '5435'  # Port you used for Cloud SQL Proxy
+
+        # Add search_path in options
+        connection_string = f'postgresql+psycopg2://{db_user}:{db_pass}@{host}:{port}/{db_name}?options=-c%20search_path=project'
+            
+    else:
+        # Production - connect using Unix socket with search_path
+        connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@/{db_name}?host=/cloudsql/{project_id}:{region}:{instance_id}&options=-c%20search_path=project"
+        
+    return connection_string
+
 
 @st.cache_data
 def load_data(query: str) -> pd.DataFrame:
@@ -139,7 +158,7 @@ def get_continent_query_for_bubble_chart(continent:str) -> str:
     COUNT(CASE WHEN mu.title != 'NT' THEN 1 END) AS "count of titled players",
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
-    FROM MontlhyUpdates mu
+    FROM montlhyupdates mu
     LEFT JOIN countries c ON mu.fed = c.code    
     WHERE continent = '{continent}'
     
@@ -315,6 +334,7 @@ def get_count_unique_countries(filters:list) -> int:
     RIGHT JOIN montlhyupdate_open_players_with_age_group_mv muomv ON c.code = muomv.fed
     LEFT JOIN players p ON muomv.ID = p.ID
     """
+    filters.append("FED not in ('NON','FID')")
     query += " WHERE " + " AND ".join(filters)
     
     df = load_data(query)
@@ -702,6 +722,14 @@ def title_line_chart(
         ticktext=tick_labels,
         tickangle=45  # Rotate labels for better readability
     )
+    
+    fig_title.update_yaxes(
+        tickvals=[0, 0.2, 0.4, 0.6, 0.8,1],
+        ticktext=[0, 0.2, 0.4, 0.6, 0.8,1],
+        tickmode="array",  # Ensure only these tick values are used
+    range=[0, 1]  # Set fixed range
+    )
+    
 
     return fig_title
 
@@ -777,7 +805,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.add_trace(go.Violin(x=df['date'],
                             y=df['rating'],
                             legendgroup='Yes', scalegroup='Yes', name='Yes',
-                            side='negative',
+                            side='negative', #positive
                             line_color='teal')
                 )
 
@@ -800,7 +828,7 @@ def rating_violin_chart(df: pd.DataFrame,
     fig_rating.update_xaxes(
         tickvals=tick_labels,
         ticktext=tick_labels,
-        tickangle=45  # Rotate labels for better readability
+        tickangle=75  # Rotate labels for better readability
     )
     
     return fig_rating
@@ -963,7 +991,8 @@ def variation_rating_player_line_chart(player_selected:str,
         
         query_last_month = """SELECT get_last_month()"""
         last_month = load_data(query_last_month)['get_last_month'].values[0]
-        #last_month += 1
+        if last_month < 10:
+            last_month = '-0'+str(last_month)+'-'
         df['date']=df['date'].astype('str')
         tick_vals = pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
         tick_labels =pd.to_datetime(df[df["date"].str.contains(str(last_month))]['date']).dt.strftime("%Y-%m")
@@ -992,7 +1021,14 @@ def variation_rating_player_line_chart(player_selected:str,
         fig_rating.update_xaxes(
             tickvals=tick_vals,
             ticktext=tick_labels,
-            tickangle=45  # Rotate labels for better readability
+            tickangle=75  # Rotate labels for better readability
+        )
+        
+        fig_rating.update_yaxes(
+        tickvals=[i for i in range(2500,2900,100)],
+        ticktext=[i for i in range(2500,2900,100)],
+        tickmode="array",  # Ensure only these tick values are used
+        range=[2500, 2900]  # Set fixed range
         )
         
     return fig_rating
@@ -1026,6 +1062,11 @@ def variation_games_played_line_chart(player_selected:str,
         GROUP BY years
         ORDER BY years;
         """
+        if last_month == 1:
+            last_month = 12
+        else:
+            last_month = last_month - 1
+        
         
         df = load_data(query)
         df['years']=df['years'].apply(lambda x: int(x))
@@ -1054,8 +1095,16 @@ def variation_games_played_line_chart(player_selected:str,
         fig_games.update_xaxes(
             tickvals=df["years"],
             ticktext=df['years'][1:].apply(lambda row:str(row)+'-'+str(last_month)),
-            tickangle=45  # Rotate labels for better readability
+            tickangle=75  # Rotate labels for better readability
         )
+        
+        fig_games.update_yaxes(
+        tickvals=[i for i in range(0,140,35)],
+        ticktext=[i for i in range(0,140,35)],
+        tickmode="array",  # Ensure only these tick values are used
+        range=[0,140]  # Set fixed range
+        )
+        
     
     return fig_games
 
