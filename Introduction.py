@@ -47,8 +47,11 @@ st.markdown(
 st.markdown("### 🔍 Some Key Insights")
 st.markdown(
     """
-    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  
-    - 🔹94 would be men, only 6 women – but among the top-performing countries, **China** challenges this trend.  
+    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
+
+st.markdown(    
+    """
+    - 🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
     - 🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
     - 🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
     """
