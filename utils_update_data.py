@@ -5,19 +5,21 @@ import zipfile
 import os
 from datetime import datetime
 import warnings
+from google.cloud import storage
+from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
+
 ###################################################
 # Conection database
 ###################################################
 
-def get_connection_url() -> str:
-    """
-    Retrieve the database connection URL from the configuration file.
-    Returns:
-        str: The database connection URL.
-    """
-    from config import test_credentials
-    return test_credentials()
+def download_from_gcs(bucket_name, source_blob_name, destination_file_name):
+    """Download a file from GCS to a local directory for processing."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    print(f"File {source_blob_name} downloaded from {bucket_name} to {destination_file_name}")
 
 def load_data(query: str) -> pd.DataFrame:
     """

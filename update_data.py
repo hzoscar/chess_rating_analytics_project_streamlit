@@ -1,9 +1,12 @@
 import os
 import re
 import pandas as pd
+from utils_pages import get_connection_url
 from sqlalchemy import create_engine
+
+
 from utils_update_data import add_column_date, check_column, check_country_code, clean_df, clean_names, load_data, move_files, refresh_materialized_view, update_montlhyupdates_table_sqlalchemy, update_players_table_sqlalchemy
-from utils_update_data import extract_zip, get_connection_url, replace_wrongcountry_code_with_right_country_code
+from utils_update_data import extract_zip, replace_wrongcountry_code_with_right_country_code
 import bar_chart_race as bcr
 import warnings
 warnings.filterwarnings('ignore')
@@ -16,6 +19,11 @@ folder_path = r'C:\Users\oscah\Documents\chess rating analytics project\data\cur
 zip_files = [f for f in os.listdir(folder_path) if f.endswith('.zip')]
 url_database = get_connection_url()
 engine = create_engine(url_database)
+
+
+
+
+
 
 ###################################################
 # Execution
