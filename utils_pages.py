@@ -873,7 +873,7 @@ def get_five_figures(df: pd.DataFrame,
         df = df,
         text=  "Trends in Gender Distribution Among Top Players",
         subtitle= dict(
-                    text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Gender percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -881,7 +881,7 @@ def get_five_figures(df: pd.DataFrame,
         df=df,
         text="Percentage of activity status of players Over Time",
         subtitle=dict(
-                    text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="activity status percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -890,7 +890,7 @@ def get_five_figures(df: pd.DataFrame,
         selected_title=selected_title,
         text="Percentage of titled players Over Time",
         subtitle= dict(
-                    text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="title percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -899,7 +899,7 @@ def get_five_figures(df: pd.DataFrame,
         values_group_age= list(option_age.values()),
         text="Age Group Distribution of Players Over Time",
         subtitle= dict(
-                    text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Age group percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -907,7 +907,7 @@ def get_five_figures(df: pd.DataFrame,
         df=df_rating,
         text="Rating Distribution of Players Over Time",
         subtitle= dict(
-                    text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Rating distribution among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
     

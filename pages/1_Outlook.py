@@ -106,7 +106,7 @@ fig_gender = gender_bar_chart(
     df = df,
     text=  "Trends in Gender Distribution Among Top Players",
     subtitle= dict(
-                text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                text="Gender percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                 font=dict(color="gray", size=12))
     )
 
@@ -114,7 +114,7 @@ fig_status_activity = activity_status_bar_chart(
     df=df,
     text="Percentage of activity status of players Over Time",
     subtitle=dict(
-                 text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                 text="activity status percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                 font=dict(color="gray", size=12))
     )
 
@@ -122,7 +122,7 @@ fig_continents = continents_line_chart(
     df=df,    
     text="Participation of Players by Continent Over Time",
     subtitle= dict(
-                 text="Percentages of top 100 players per country<br> segmented by continent over the last 10 years <br>",
+                 text="Percentages of top 100 players per country<br> segmented by continent over the last 5 years <br>",
                 font=dict(
                     color="gray",
                     size=12))
@@ -133,7 +133,7 @@ fig_title = title_line_chart(
     selected_title=selected_title,
     text="Percentage of titled players Over Time",
     subtitle= dict(
-                 text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                 text="title percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                 font=dict(color="gray", size=12))
     )
 
@@ -142,7 +142,7 @@ fig_age = age_group_heat_map(
     values_group_age= list(option_age.values()),
     text="Age Group Distribution of Players Over Time",
     subtitle= dict(
-                 text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                 text="Age group percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                 font=dict(color="gray", size=12))
     )
 
@@ -150,7 +150,7 @@ fig_rating = rating_violin_chart(
     df=df_rating,
     text="Rating Distribution of Players Over Time",
     subtitle= dict(
-                 text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                 text="Rating distribution among the strongest 100 players <br> per country over the last 5 years <br>",
                 font=dict(color="gray", size=12))
     )
 
