@@ -1,11 +1,9 @@
 import os
 import re
 import pandas as pd
-from utils_pages import get_connection_url
 from sqlalchemy import create_engine
-
-
-from utils_update_data import add_column_date, check_column, check_country_code, clean_df, clean_names, load_data, move_files, refresh_materialized_view, update_montlhyupdates_table_sqlalchemy, update_players_table_sqlalchemy
+from utils_update_data import load_data
+from utils_update_data import get_connection_url, add_column_date, check_column, check_country_code, clean_df, clean_names, load_data, move_files, refresh_materialized_view, update_montlhyupdates_table_sqlalchemy, update_players_table_sqlalchemy
 from utils_update_data import extract_zip, replace_wrongcountry_code_with_right_country_code
 import bar_chart_race as bcr
 import warnings
@@ -19,7 +17,7 @@ folder_path = r'C:\Users\oscah\Documents\chess rating analytics project\data\cur
 zip_files = [f for f in os.listdir(folder_path) if f.endswith('.zip')]
 url_database = get_connection_url()
 engine = create_engine(url_database)
-
+print(url_database)
 
 
 
@@ -83,6 +81,7 @@ query = """
     FROM players p ;
     """
 current_unique_ids = load_data(query)
+print(current_unique_ids.head())
 current_unique_ids = current_unique_ids['id'].to_list()
 id_to_add = top_players[~top_players['ID'].isin(current_unique_ids)]
 print(f'The number of rows to add is {id_to_add.shape[0]}')

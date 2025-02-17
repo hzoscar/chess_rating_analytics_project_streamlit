@@ -5,21 +5,24 @@ import zipfile
 import os
 from datetime import datetime
 import warnings
-from google.cloud import storage
 from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
+from dotenv import load_dotenv
+load_dotenv()
 
 ###################################################
 # Conection database
 ###################################################
+def get_connection_url() -> str:
+    # Connection details    
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    db_name = os.getenv("DB_NAME")
+    db_host = os.getenv("DB_HOST")  
 
-def download_from_gcs(bucket_name, source_blob_name, destination_file_name):
-    """Download a file from GCS to a local directory for processing."""
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-    print(f"File {source_blob_name} downloaded from {bucket_name} to {destination_file_name}")
+    connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?options=-c%20search_path=project"       
+
+    return connection_string       
 
 def load_data(query: str) -> pd.DataFrame:
     """
