@@ -56,12 +56,12 @@ if len(player) > 0:
     
     fig_player_rating =  variation_rating_player_line_chart(player_selected=player_selected,
                                      text=f" Rating Variations of {player_selected} ",
-                                      subtitle=dict(text="Tracking the Professional Chess Rating <br> over the last 10 years <br>",
+                                      subtitle=dict(text="Tracking the Professional Chess Rating <br> over the last 5 years <br>",
                                                       font=dict(color="gray", size=12)))
 
     fig_games = variation_games_played_line_chart(player_selected=player_selected,
                                                 text=f'Annual Number of Games Played by {player_selected}',
-                                              subtitle=dict(text="Yearly Game Count <br> over the last 10 years <br>",
+                                              subtitle=dict(text="Yearly Game Count <br> over the last 5 years <br>",
                                                       font=dict(color="gray", size=12))
                                               )    
     with container_2:

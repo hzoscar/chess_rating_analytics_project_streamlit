@@ -2,22 +2,31 @@ import pandas as pd
 from sqlalchemy import create_engine, select, Table, MetaData, text
 from sqlalchemy.exc import SQLAlchemyError
 import zipfile
-import os
+#import os
 from datetime import datetime
 import warnings
+from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
+#from dotenv import load_dotenv
+#load_dotenv()
+
 ###################################################
 # Conection database
 ###################################################
-
 def get_connection_url() -> str:
-    """
-    Retrieve the database connection URL from the configuration file.
-    Returns:
-        str: The database connection URL.
-    """
-    from config import test_credentials
-    return test_credentials()
+    # Connection details    
+    # db_user = os.getenv("DB_USER")
+    # db_pass = os.getenv("DB_PASS")
+    # db_name = os.getenv("DB_NAME")
+    # db_host = os.getenv("DB_HOST")
+    db_user = st.secrets["DB_USER"]
+    db_pass = st.secrets["DB_PASS"]
+    db_name = st.secrets["DB_NAME"]
+    db_host = st.secrets["DB_HOST"] 
+
+    connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?options=-c%20search_path=project"       
+
+    return connection_string       
 
 def load_data(query: str) -> pd.DataFrame:
     """

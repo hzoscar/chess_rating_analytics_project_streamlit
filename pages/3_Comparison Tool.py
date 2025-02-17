@@ -85,28 +85,28 @@ fig_bubble_chart_comparison = bubble_chart(query_comparison_country_bubble_chart
 gender_bar_chart_first_country = gender_bar_chart(df =df_first_country,
                                                   text=  f"Trends in Gender Distribution Among Top Players <br>{first_country}<br>",
                                                 subtitle= dict(
-                                                    text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                    text="Gender percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                     font=dict(color="gray", size=12))
                                             )
 
 gender_bar_chart_second_country = gender_bar_chart(df =df_second_country,
                                                   text=  f"Trends in Gender Distribution Among Top Players <br>{second_country}<br>",
                                                 subtitle= dict(
-                                                    text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                    text="Gender percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                     font=dict(color="gray", size=12))
                                             )
 
 activity_status_bar_chart_first_country = activity_status_bar_chart(df =df_first_country,
                                                                     text= f"Percentage of activity status of players Over Time <br>{first_country}<br>",
                                                                     subtitle=dict(
-                                                                        text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                                        text="activity status percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                                         font=dict(color="gray", size=12))
                                                                     )
 
 activity_status_bar_chart_second_country = activity_status_bar_chart(df =df_second_country,
                                                                     text= f"Percentage of activity status of players Over Time <br>{second_country}<br>",
                                                                     subtitle=dict(
-                                                                        text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                                        text="activity status percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                                         font=dict(color="gray", size=12))
                                                                     )
 
@@ -114,21 +114,21 @@ title_line_chart_first_country = title_line_chart(df =df_first_country,
                                                   text= f"Percentage of titled players Over Time <br>{first_country}<br>",
                                                   selected_title=selected_title,
                                                   subtitle= dict(
-                                                      text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                      text="title percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                       font=dict(color="gray", size=12))
                                                   )
 title_line_chart_second_country = title_line_chart(df =df_second_country,
                                                    text= f"Percentage of titled players Over Time <br>{second_country}<br>",
                                                    selected_title=selected_title,
                                                    subtitle= dict(
-                                                       text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                       text="title percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                        font=dict(color="gray", size=12))
                                                    )
 age_group_heat_map_first_country = age_group_heat_map(df=df_first_country,
                                                       values_group_age= list(option_age.values()),
                                                         text=f"Age Group Distribution of Players Over Time <br>{first_country}<br>",
                                                         subtitle= dict(
-                                                            text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                            text="Age group percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                             font=dict(color="gray", size=12))
                                                         )      
 
@@ -136,7 +136,7 @@ age_group_heat_map_second_country = age_group_heat_map(df=df_second_country,
                                                       values_group_age= list(option_age.values()),
                                                         text=f"Age Group Distribution of Players Over Time <br>{second_country}<br>",
                                                         subtitle= dict(
-                                                            text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                            text="Age group percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                                                             font=dict(color="gray", size=12))
                                                         )   
 
@@ -145,7 +145,7 @@ fig_rating = rating_violin_chart_for_comparison_tool(first_country=first_country
                                                     df_first_country= df_rating_first_country,
                                                     df_second_country= df_rating_second_country,
                                                         text="Rating Distribution of Players Over Time",
-                                                        subtitle=dict(text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                                                        subtitle=dict(text="Rating distribution among the strongest 100 players <br> per country over the last 5 years <br>",
                                                         font=dict(color="gray", size=12)))                                                        
 
 with bubble_chart_container:

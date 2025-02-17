@@ -47,8 +47,11 @@ st.markdown(
 st.markdown("### 🔍 Some Key Insights")
 st.markdown(
     """
-    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  
-    - 🔹94 would be men, only 6 women – but among the top-performing countries, **China** challenges this trend.  
+    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
+
+st.markdown(    
+    """
+    - 🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
     - 🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
     - 🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
     """
@@ -149,35 +152,15 @@ with expander_data:
     which provides monthly updates. I downloaded data spanning **the last 5 years**, resulting in 60 text files containing 
     information on all players registered with FIDE—a significant amount of data!
 
-    Since my primary goal was to gain insights into how well countries perform in chess, I decided to focus on the top 
-    100 strongest players from each country.
-
+    
     After preprocessing the data, I created a PostgreSQL database consisting of three tables:
     """)
 
     # Table descriptions
     st.markdown("""
-    **players:** Contains static player information:
-    - `id`: Unique identifier for a player.
-    - `name`: Name of the player.
-    - `sex`: Gender of the player.
-    - `b_day`: Year of birth.
-
-    **countries:** Stores geographic attributes:
-    - `code`: Country code.
-    - `country`: Name of the country.
-    - `subregion`: Subregion the country belongs to.
-    - `continent`: Continent the country is part of.
-
-    **monthlyupdates:** Holds dynamic player information that changes monthly:
-    - `id`: Unique identifier for a player.
-    - `rating`: Standard Elo rating.
-    - `activity_status`: Indicates whether a player is active or inactive 
-    (inactive if no professional game was played in the past year).
-    - `number_of_games`: Number of games played in the current month.
-    - `title`: Chess title of the player.
-    - `fed`: Federation the player represents.   
-    - `ongoing_date`: The date the data was recorded.
+    - 🔹**players:** Contains static player information.    
+    - 🔹**countries:** Stores geographic attributes.
+    - 🔹**monthlyupdates:** Holds dynamic player information that changes monthly.
     """)
 
 # ---- PROJECT DOCUMENTATION ----

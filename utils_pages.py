@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from dotenv import load_dotenv
-import os
+#from dotenv import load_dotenv
+#import os
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import plotly.express as px
@@ -10,35 +10,26 @@ from typing import Optional, Union
 from typing import Optional, Dict
 import streamlit as st
 
-load_dotenv()
+#load_dotenv()
 ###################################################
 # Conection database
 ###################################################
 
-import os
-
 def get_connection_url() -> str:
-    # Connection details
-    db_user = os.getenv("DB_USER")
-    db_pass = os.getenv("DB_PASS")
-    db_name = os.getenv("DB_NAME") 
-    project_id = os.getenv("PROJECT_ID")
-    region = os.getenv("REGION")
-    instance_id = os.getenv("INSTANCE_ID")
     
-    if os.getenv("ENV") == "local":
-        host = '127.0.0.1'  # Localhost
-        port = '5435'  # Port you used for Cloud SQL Proxy
+    # db_user = os.getenv("DB_USER")
+    # db_pass = os.getenv("DB_PASS")
+    # db_name = os.getenv("DB_NAME")
+    # db_host = os.getenv("DB_HOST")
+    
+    db_user = st.secrets["DB_USER"]
+    db_pass = st.secrets["DB_PASS"]
+    db_name = st.secrets["DB_NAME"]
+    db_host = st.secrets["DB_HOST"]   
 
-        # Add search_path in options
-        connection_string = f'postgresql+psycopg2://{db_user}:{db_pass}@{host}:{port}/{db_name}?options=-c%20search_path=project'
-            
-    else:
-        # Production - connect using Unix socket with search_path
-        connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@/{db_name}?host=/cloudsql/{project_id}:{region}:{instance_id}&options=-c%20search_path=project"
-        
-    return connection_string
+    connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?options=-c%20search_path=project"       
 
+    return connection_string   
 
 @st.cache_data
 def load_data(query: str) -> pd.DataFrame:
@@ -873,7 +864,7 @@ def get_five_figures(df: pd.DataFrame,
         df = df,
         text=  "Trends in Gender Distribution Among Top Players",
         subtitle= dict(
-                    text="Gender percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Gender percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -881,7 +872,7 @@ def get_five_figures(df: pd.DataFrame,
         df=df,
         text="Percentage of activity status of players Over Time",
         subtitle=dict(
-                    text="activity status percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="activity status percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -890,7 +881,7 @@ def get_five_figures(df: pd.DataFrame,
         selected_title=selected_title,
         text="Percentage of titled players Over Time",
         subtitle= dict(
-                    text="title percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="title percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -899,7 +890,7 @@ def get_five_figures(df: pd.DataFrame,
         values_group_age= list(option_age.values()),
         text="Age Group Distribution of Players Over Time",
         subtitle= dict(
-                    text="Age group percentages among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Age group percentages among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
 
@@ -907,7 +898,7 @@ def get_five_figures(df: pd.DataFrame,
         df=df_rating,
         text="Rating Distribution of Players Over Time",
         subtitle= dict(
-                    text="Rating distribution among the strongest 100 players <br> per country over the last 10 years <br>",
+                    text="Rating distribution among the strongest 100 players <br> per country over the last 5 years <br>",
                     font=dict(color="gray", size=12))
         )
     
