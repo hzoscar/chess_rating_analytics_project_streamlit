@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from dotenv import load_dotenv
-import os
+#from dotenv import load_dotenv
+#import os
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import plotly.express as px
@@ -10,17 +10,22 @@ from typing import Optional, Union
 from typing import Optional, Dict
 import streamlit as st
 
-load_dotenv()
+#load_dotenv()
 ###################################################
 # Conection database
 ###################################################
 
 def get_connection_url() -> str:
     
-    db_user = os.getenv("DB_USER")
-    db_pass = os.getenv("DB_PASS")
-    db_name = os.getenv("DB_NAME")
-    db_host = os.getenv("DB_HOST")  
+    # db_user = os.getenv("DB_USER")
+    # db_pass = os.getenv("DB_PASS")
+    # db_name = os.getenv("DB_NAME")
+    # db_host = os.getenv("DB_HOST")
+    
+    db_user = st.secrets["DB_USER"]
+    db_pass = st.secrets["DB_PASS"]
+    db_name = st.secrets["DB_NAME"]
+    db_host = st.secrets["DB_HOST"]   
 
     connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?options=-c%20search_path=project"       
 
