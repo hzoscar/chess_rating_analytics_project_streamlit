@@ -47,17 +47,17 @@ st.markdown(
 st.markdown("### 🔍 Some Key Insights")
 st.markdown(
     """
-    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
+    🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
 
 st.markdown(    
     """
-    - 🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
-    - 🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
-    - 🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
+    🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
+    🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
+    🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
     """
 )
 st.markdown(
-    f"- 🌟 **Top 5 Chess Countries** (based on 3 key metrics). **Last update: {max_date_right_format}** ")
+    f"🌟 **Top 5 Chess Countries** (based on 3 key metrics). **Last update: {max_date_right_format}** ")
 
 df = df[df['date']== max_date][['country','count of Gm',	'count of titled players',	'median of rating']].head()
 st.dataframe(df, hide_index=True)  
