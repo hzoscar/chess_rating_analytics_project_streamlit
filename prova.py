@@ -1,14 +1,27 @@
-import streamlit as st
 import pandas as pd
+import os
 import re
-from utils_update_data import add_column_date, clean_df, clean_names, replace_wrongcountry_code_with_right_country_code, check_column, check_country_code
+import bar_chart_race as bcr
+from sqlalchemy import create_engine
+from utils_update_data import get_connection_url, update_montlhyupdates_table_sqlalchemy, refresh_materialized_view, delete_data
+from utils_update_data import add_column_date, clean_df, clean_names, replace_wrongcountry_code_with_right_country_code, check_column, check_country_code, load_data, update_players_table_sqlalchemy
+
+###################################################
+# Set up the variables
+###################################################
+
+url_database = get_connection_url()
+engine = create_engine(url_database)
 
 ###################################################
 # Load txt file into a dataframe
 ###################################################
 
 # Read the txt file and load it into a dataframe
-txt_file_path= 'current_month\standard_mar25frl.txt'
+txt_file_path= [f for f in os.listdir('current_month') if f.endswith('.txt')][0]
+print(txt_file_path)
+txt_file_path = os.path.join('current_month', txt_file_path)
+print(txt_file_path)
 widths = [15, 61, 4, 3, 6, 4, 15, 5, 6, 4, 3, 5, 7]
 df = pd.read_fwf(txt_file_path, widths=widths, dtype = {'ID Number':str})
 print('The txt file have been loaded into a dataframe')
@@ -96,10 +109,97 @@ check_column(top_players, 'Rating', is_numeric=True, min_length=4, max_length=4)
 check_country_code(top_players)
 
 ###################################################
-# Data Cleaning
+# Load data into the database
 ###################################################
 
 print(f'the shape of the dataframe is {top_players.shape}')
 top_players['ID'] = top_players['ID'].astype('str')
 
-top_players
+###################################################
+# players table
+###################################################
+
+query = """
+    SELECT distinct id
+    FROM players p ;
+    """
+current_unique_ids = load_data(query)
+print(f'The number of current unique Ids in table player is {current_unique_ids.shape[0]}')
+current_unique_ids = current_unique_ids['id'].to_list()
+id_to_add = top_players[~top_players['ID'].isin(current_unique_ids)]
+print(f'The number of rows to add is {id_to_add.shape[0]}')
+
+update_players_table_sqlalchemy(top_players, engine)
+
+###################################################
+# montlhyupdates table
+###################################################
+
+# Update the 'monthlyupdates' table
+update_montlhyupdates_table_sqlalchemy(top_players, engine)
+
+###################################################
+# refresh the materialized views
+###################################################
+
+refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine)
+
+###################################################
+# save files
+###################################################
+
+# Save the dataframe into a csv file
+dataset_date = top_players['Date'].dt.strftime("%Y-%m").unique()[0]
+top_players_path = r"current_month\open_" + dataset_date + ".csv"
+top_players.to_csv(top_players_path, index= False)
+
+###################################################
+# update bar chart race - video
+###################################################
+
+query = """SELECT *
+        FROM top_10_open_players_over_time_view
+       ;        
+        """
+# df = load_data(engine,query)
+df = load_data(query)
+
+df["date"] = pd.to_datetime(df["ongoing_date"])
+df.drop(columns=['ongoing_date'],inplace=True)
+
+pivot_df = df.pivot_table(
+    index="date", 
+    columns="name", 
+    values="rating"
+)
+pivot_df.shape
+
+# Generate the animation
+anim = bcr.bar_chart_race(
+    df=pivot_df,
+    title='Top 5 Chess Players Over The last 10 Years',
+    orientation='h',
+    sort='desc',
+    n_bars=5,
+    steps_per_period=20,
+    period_length=500,
+    perpendicular_bar_func='median',
+    figsize=(5, 3),
+    dpi=120,
+    bar_size=.7,
+    period_label={'x': .4, 'y': .93},
+    filter_column_colors=False,
+    filename='bar_chart_race_video/top_5_chess_players_over_time.mp4' 
+)
+
+#########################################################
+# Delete Data
+#########################################################
+delete_data(table_name='players', where_condition='id in ("00000001", "00000002","0000003","0000004")')
+delete_data(table_name='montlhyupdates', where_condition='ongoing_date="2025-03-01"')
+
+###################################################
+# refresh the materialized views
+###################################################
+
+refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine)

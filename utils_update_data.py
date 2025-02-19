@@ -6,7 +6,7 @@ import zipfile
 #import os
 from datetime import datetime
 import warnings
-from utils_pages import get_connection_url
+#from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
 #from dotenv import load_dotenv
 #load_dotenv()
@@ -15,11 +15,7 @@ warnings.filterwarnings('ignore')
 # Conection database
 ###################################################
 def get_connection_url() -> str:
-    # Connection details    
-    # db_user = os.getenv("DB_USER")
-    # db_pass = os.getenv("DB_PASS")
-    # db_name = os.getenv("DB_NAME")
-    # db_host = os.getenv("DB_HOST")
+    
     db_user = st.secrets["DB_USER"]
     db_pass = st.secrets["DB_PASS"]
     db_name = st.secrets["DB_NAME"]
@@ -29,6 +25,7 @@ def get_connection_url() -> str:
 
     return connection_string       
 
+@st.cache_data
 def load_data(query: str) -> pd.DataFrame:
     """
     Test the connection to the database, then execute a SQL query and return the results as a pandas DataFrame.
@@ -58,12 +55,12 @@ def load_data(query: str) -> pd.DataFrame:
 # Extraction files
 ###################################################
     
-def extract_zip(zip_files, folder_path):
-    # List all zip files in the folder
-    for file in zip_files:
-        with zipfile.ZipFile(os.path.join(folder_path, file), 'r') as zip_ref:
-            zip_ref.extractall(folder_path)
-            print(f'{file} extracted successfully')
+# def extract_zip(zip_files, folder_path):
+#     # List all zip files in the folder
+#     for file in zip_files:
+#         with zipfile.ZipFile(os.path.join(folder_path, file), 'r') as zip_ref:
+#             zip_ref.extractall(folder_path)
+#             print(f'{file} extracted successfully')
             
 ###################################################
 # Check integrity dataset loaded
@@ -423,14 +420,41 @@ def refresh_materialized_view(view_name, engine):
             print(f"Materialized view '{view_name}' refreshed successfully.")
         except Exception as e:
             print(f"Failed to refresh materialized view '{view_name}': {e}")
+            
+###################################################
+# Delete Data
+###################################################
+
+def delete_data(table_name: str, where_condition: str) -> None:
+    """
+    Deletes rows from the specified table that satisfy the where_condition.
+    
+    Parameters:
+        table_name (str): The name of the table from which to delete data.
+        where_condition (str): The SQL WHERE condition (without the 'WHERE' keyword).
+        
+    Example:
+        delete_data("users", "id = 5")
+    """
+    connection_url = get_connection_url()
+    engine = create_engine(connection_url)
+    
+    # Construct the DELETE query. 
+    # CAUTION: Ensure that `where_condition` is properly sanitized to avoid SQL injection.
+    query = text(f"DELETE FROM {table_name} WHERE {where_condition};")
+    
+    # Using engine.begin() ensures that the transaction is committed if no errors occur.
+    with engine.begin() as connection:
+        result = connection.execute(query)
+        print(f"Deleted {result.rowcount} row(s) from {table_name}.")
 
 ###################################################
 # Move files
 ###################################################
 
-def move_files(source_path, destination_path, files):
-    for file in files:
-        source = os.path.join(source_path, file)
-        destination = os.path.join(destination_path, file)
-        os.rename(source, destination)
-        print(f'{file} moved successfully')
+# def move_files(source_path, destination_path, files):
+#     for file in files:
+#         source = os.path.join(source_path, file)
+#         destination = os.path.join(destination_path, file)
+#         os.rename(source, destination)
+#         print(f'{file} moved successfully')
