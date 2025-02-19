@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 from sqlalchemy import create_engine, select, Table, MetaData, text
 from sqlalchemy.exc import SQLAlchemyError
 import zipfile
@@ -72,7 +73,7 @@ def is_null(df,column):
     # Check if a column contains null values
     total_null_values = df[column].isnull().sum()
     if total_null_values > 0:
-        print(f'The column {column} contains {total_null_values} null values')
+        print(f'Atention!!!! The column {column} contains {total_null_values} null values')
         return True
     else:
         print(f'The column {column} does not contain null values')
