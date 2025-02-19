@@ -100,9 +100,9 @@ with expander_objectives:
         st.markdown("### 🔹Key Metrics") #📊
         st.markdown(
             """
-            **📈 Median of rating**
-            **👑 Number of Grand Masters**
-            **🎖️ Number of titled players**
+            -**Median of rating**
+            -**Number of Grand Masters**
+            -**Number of titled players**
             """
         )
 
@@ -110,8 +110,8 @@ with expander_objectives:
         st.markdown("### 🔹Demographic Variables") #🚻
         st.markdown(
             """
-            **👨‍🦰 Gender**
-            **📅 Age**
+            -**Gender**
+            -**Age**
             """
         )
 
@@ -119,9 +119,9 @@ with expander_objectives:
         st.markdown("### 🔹Chess-Related Factors") #🏆
         st.markdown(
             """
-            🔄 **Activity status**
-            🎖️ **Title**
-            📊 **Rating**
+            -**Activity status**
+            -**Title**
+            -**Rating**
             """
         )
 
