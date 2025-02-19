@@ -47,17 +47,17 @@ st.markdown(
 st.markdown("### 🔍 Some Key Insights")
 st.markdown(
     """
-    - 🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
+    🌟 **If we assumed there are only 100 TOP players worldwide**:  """)
 
 st.markdown(    
     """
-    - 🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
-    - 🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
-    - 🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
+    🔹94 would be men, only 6 women but among the top-performing countries, **China** challenges this trend.  
+    🔹56 **wouldn't have a title**, 34 **would have a title (not GM)**, and **only 10 would be Grand Masters**.  
+    🔹 **Nearly 6 out of 10 Grand Masters would be European**.  
     """
 )
 st.markdown(
-    f"- 🌟 **Top 5 Chess Countries** (based on 3 key metrics). **Last update: {max_date_right_format}** ")
+    f"🌟 **Top 5 Chess Countries** (based on 3 key metrics). **Last update: {max_date_right_format}** ")
 
 df = df[df['date']== max_date][['country','count of Gm',	'count of titled players',	'median of rating']].head()
 st.dataframe(df, hide_index=True)  
@@ -100,9 +100,9 @@ with expander_objectives:
         st.markdown("### 🔹Key Metrics") #📊
         st.markdown(
             """
-            - **📈 Median of rating**
-            - **👑 Number of Grand Masters**
-            - **🎖️ Number of titled players**
+            -  **Median of rating** 
+            -  **Number of Grand Masters**      
+            - **Number of titled players**  
             """
         )
 
@@ -110,8 +110,8 @@ with expander_objectives:
         st.markdown("### 🔹Demographic Variables") #🚻
         st.markdown(
             """
-            - **👨‍🦰 Gender**
-            - **📅 Age**
+            - **Gender**
+            -  **Age**
             """
         )
 
@@ -119,9 +119,9 @@ with expander_objectives:
         st.markdown("### 🔹Chess-Related Factors") #🏆
         st.markdown(
             """
-            - 🔄 **Activity status**
-            - 🎖️ **Title**
-            - 📊 **Rating**
+            - **Activity status**
+            - **Title**
+            - **Rating**
             """
         )
 
@@ -158,9 +158,10 @@ with expander_data:
 
     # Table descriptions
     st.markdown("""
-    - 🔹**players:** Contains static player information.    
-    - 🔹**countries:** Stores geographic attributes.
-    - 🔹**monthlyupdates:** Holds dynamic player information that changes monthly.
+    - **players:** Contains static player information. 
+    - **monthlyupdates:** Holds dynamic player information that changes monthly.                        
+    - **countries:** Stores geographic attributes.
+    
     """)
 
 # ---- PROJECT DOCUMENTATION ----

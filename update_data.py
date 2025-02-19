@@ -19,10 +19,6 @@ url_database = get_connection_url()
 engine = create_engine(url_database)
 print(url_database)
 
-
-
-
-
 ###################################################
 # Execution
 ###################################################
