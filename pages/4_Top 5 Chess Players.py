@@ -78,4 +78,4 @@ else:
 # Add current year games played so far
 
 expander_video = st.expander(label='Bar Chart Race video - Top 5 Chess Players Over Time', icon='📊')
-expander_video.video(data = r'top_5_chess_players_over_time.mp4')
+expander_video.video(data = r'bar_chart_race_video\top_5_chess_players_over_time.mp4')
