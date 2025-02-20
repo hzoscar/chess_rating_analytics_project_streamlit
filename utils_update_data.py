@@ -21,7 +21,7 @@ def get_connection_url() -> str:
     db_user = os.getenv("DB_USER")
     db_pass = os.getenv("DB_PASS")
     db_name = os.getenv("DB_NAME")
-    db_host = "127.0.0.1"
+    db_host = os.getenv("DB_HOST")
     db_port = 5432
     
     if not all([db_user, db_pass, db_name, db_host]):
