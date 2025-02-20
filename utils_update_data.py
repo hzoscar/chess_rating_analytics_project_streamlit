@@ -29,7 +29,6 @@ def get_connection_url() -> str:
 
     connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}?options=-c%20search_path=project"       
     
-    print(connection_string)
     return connection_string       
 
 @st.cache_data
