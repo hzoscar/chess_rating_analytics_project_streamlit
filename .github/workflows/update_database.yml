@@ -33,6 +33,9 @@ jobs:
           chmod +x cloud_sql_proxy
           ./cloud_sql_proxy -instances=chessproject-450714:europe-west8:chess-db=tcp:5432 &
 
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Run update script
         env:
           DB_USER: ${{ secrets.DB_USER }}
