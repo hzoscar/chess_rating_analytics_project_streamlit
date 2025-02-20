@@ -150,10 +150,11 @@ refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine
 
 # Save the dataframe into a csv file
 dataset_date = top_players['Date'].dt.strftime("%Y-%m").unique()[0]
-folder = "current_month"
-os.makedirs(folder, exist_ok=True)
-top_players_path = os.path.join(folder, f"open_{dataset_date}.csv")
-top_players.to_csv(top_players_path, index=False)
+print(dataset_date)
+#folder = "current_month"
+#os.makedirs(folder, exist_ok=True)
+#top_players_path = os.path.join(folder, "open.csv")
+top_players.to_csv("open.csv", index=False)
 print('The dataframe has been saved into a csv file')
 
 ###################################################
@@ -192,7 +193,7 @@ anim = bcr.bar_chart_race(
     bar_size=.7,
     period_label={'x': .4, 'y': .93},
     filter_column_colors=False,
-    filename='bar_chart_race_video/top_5_chess_players_over_time.mp4' 
+    filename='top_5_chess_players_over_time.mp4' 
 )
 print('The animation has been generated')
 #########################################################
