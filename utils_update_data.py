@@ -2,14 +2,14 @@ import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, select, Table, MetaData, text
 from sqlalchemy.exc import SQLAlchemyError
-import zipfile
+#import zipfile
 import os
 from datetime import datetime
 import warnings
 #from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
-from dotenv import load_dotenv
-load_dotenv()
+#from dotenv import load_dotenv
+#load_dotenv()
 
 ###################################################
 # Conection database
