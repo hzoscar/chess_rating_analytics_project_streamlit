@@ -22,7 +22,7 @@ def get_connection_url() -> str:
     db_pass = os.getenv("DB_PASS")
     db_name = os.getenv("DB_NAME")
     db_host = "127.0.0.1"
-    db_port = 5435
+    db_port = 5432
     
     if not all([db_user, db_pass, db_name, db_host]):
         raise ValueError("Missing one or more database credentials")
