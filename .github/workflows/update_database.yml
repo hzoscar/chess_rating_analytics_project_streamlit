@@ -1,5 +1,11 @@
 name: Monthly Database Update
 
+env:
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
 on:
   schedule:
     #- cron: "0 0 1 * *"  # Runs at midnight on the 1st of every month

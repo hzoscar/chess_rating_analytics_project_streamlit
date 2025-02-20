@@ -8,13 +8,15 @@ from datetime import datetime
 import warnings
 #from utils_pages import get_connection_url
 warnings.filterwarnings('ignore')
-#from dotenv import load_dotenv
-#load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 ###################################################
 # Conection database
 ###################################################
 def get_connection_url() -> str:
+    
+    print(f"Connecting to database...")
     
     db_user = os.getenv("DB_USER")
     db_pass = os.getenv("DB_PASS")
