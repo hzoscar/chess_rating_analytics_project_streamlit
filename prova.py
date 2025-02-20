@@ -195,8 +195,9 @@ anim = bcr.bar_chart_race(
 #########################################################
 # Delete Data
 #########################################################
-delete_data(table_name='players', where_condition="id in ('00000001', '00000002','0000003','0000004')")
+
 delete_data(table_name='montlhyupdates', where_condition="ongoing_date='2025-03-01'")
+delete_data(table_name='players', where_condition="id in ('00000001', '00000002','0000003','0000004')")
 
 ###################################################
 # refresh the materialized views
