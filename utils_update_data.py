@@ -22,11 +22,13 @@ def get_connection_url() -> str:
     db_pass = os.getenv("DB_PASS")
     db_name = os.getenv("DB_NAME")
     db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT")
+    
 
     if not all([db_user, db_pass, db_name, db_host]):
         raise ValueError("Missing one or more database credentials")
 
-    connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?options=-c%20search_path=project"       
+    connection_string = f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}?options=-c%20search_path=project"       
     print(os.environ)
     print(connection_string)
     return connection_string       
