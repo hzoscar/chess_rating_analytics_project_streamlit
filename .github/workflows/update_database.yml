@@ -47,13 +47,13 @@ jobs:
         run: python monthly_update/prova.py
       
       - name: Upload CSV artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: open_csv_file
           path: current_month/open.csv
 
       - name: Upload video artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bar_chart_race_video
           path: bar_chart_race_videp/top_5_chess_players_over_time.mp4
