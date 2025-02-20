@@ -24,6 +24,11 @@ def get_connection_url() -> str:
     db_host = os.getenv("DB_HOST")
     db_port = os.getenv("DB_PORT")
     
+    print (db_port)
+    try:
+        db_port = int(db_port)  # Convert to integer
+    except ValueError:
+        raise ValueError(f"Invalid DB_PORT value: {db_port}")  # Error if it's not a number    
 
     if not all([db_user, db_pass, db_name, db_host]):
         raise ValueError("Missing one or more database credentials")
