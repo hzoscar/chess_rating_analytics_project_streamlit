@@ -3,8 +3,8 @@ import os
 import re
 import bar_chart_race as bcr
 from sqlalchemy import create_engine
-from utils_update_data import get_connection_url, update_montlhyupdates_table_sqlalchemy, refresh_materialized_view, delete_data
-from utils_update_data import add_column_date, clean_df, clean_names, replace_wrongcountry_code_with_right_country_code, check_column, check_country_code, load_data, update_players_table_sqlalchemy
+from monthly_update.utils_update_data import get_connection_url, update_montlhyupdates_table_sqlalchemy, refresh_materialized_view, delete_data
+from monthly_update.utils_update_data import add_column_date, clean_df, clean_names, replace_wrongcountry_code_with_right_country_code, check_column, check_country_code, load_data, update_players_table_sqlalchemy
 
 ###################################################
 # Set up the variables
@@ -150,8 +150,11 @@ refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine
 
 # Save the dataframe into a csv file
 dataset_date = top_players['Date'].dt.strftime("%Y-%m").unique()[0]
-top_players_path = r"current_month\open_" + dataset_date + ".csv"
-top_players.to_csv(top_players_path, index= False)
+folder = "current_month"
+os.makedirs(folder, exist_ok=True)
+top_players_path = os.path.join(folder, f"open_{dataset_date}.csv")
+top_players.to_csv(top_players_path, index=False)
+print('The dataframe has been saved into a csv file')
 
 ###################################################
 # update bar chart race - video
@@ -173,7 +176,7 @@ pivot_df = df.pivot_table(
     values="rating"
 )
 pivot_df.shape
-
+print('The pivot table has been created')
 # Generate the animation
 anim = bcr.bar_chart_race(
     df=pivot_df,
@@ -191,7 +194,7 @@ anim = bcr.bar_chart_race(
     filter_column_colors=False,
     filename='bar_chart_race_video/top_5_chess_players_over_time.mp4' 
 )
-
+print('The animation has been generated')
 #########################################################
 # Delete Data
 #########################################################
