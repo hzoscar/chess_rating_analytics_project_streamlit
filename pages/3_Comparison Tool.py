@@ -65,7 +65,8 @@ filters_second_country = filters_for_comparison_tool(country=second_country,
                                                     selected_title=selected_title,
                                                     selected_age=selected_age)
 
-filters_metrics = filters_for_metrics_comparison_tool(country=second_country,
+filters_metrics = filters_for_metrics_comparison_tool(first_country=first_country,
+                                                    second_country=second_country,
                                                     selected_gender=selected_gender,
                                                     selected_activity_Status=selected_activity_Status,
                                                     selected_title=selected_title,
