@@ -154,7 +154,7 @@ print(dataset_date)
 folder = "current_month"
 os.makedirs(folder, exist_ok=True)
 top_players_path = os.path.join(folder, "open.csv")
-top_players.to_csv("open.csv", index=False)
+top_players.to_csv(top_players_path, index=False)
 print('The dataframe has been saved into a csv file')
 
 ###################################################
