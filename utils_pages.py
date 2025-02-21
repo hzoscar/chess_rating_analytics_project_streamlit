@@ -185,7 +185,8 @@ def get_country_query_for_bubble_chart(filters:list) -> str:
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM MontlhyUpdates mu
-    LEFT JOIN countries c ON mu.fed = c.code """
+    LEFT JOIN countries c ON mu.fed = c.code
+    LEFT JOIN players p ON muomv.ID = p.ID"""
     query += " WHERE " + " AND ".join(filters)    
     query += """
     
