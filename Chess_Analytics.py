@@ -66,7 +66,7 @@ st.dataframe(df, hide_index=True)
 expander_bubble_chart = st.expander(" A Taste of the Data: Interactive Bubble Chart", icon="▶️")
 
 with expander_bubble_chart:
-    st.markdown("## 📊 A Taste of the Data: Interactive Bubble Chart")
+    st.markdown("## ▶️ A Taste of the Data: Interactive Bubble Chart")
     st.markdown(
         """
         This interactive **bubble plot** visualizes the relationship between **median Elo rating** and
