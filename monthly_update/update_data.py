@@ -1,66 +1,113 @@
+import pandas as pd
 import os
 import re
-import pandas as pd
-from sqlalchemy import create_engine
-from monthly_update.utils_update_data import load_data
-from monthly_update.utils_update_data import get_connection_url, add_column_date, check_column, check_country_code, clean_df, clean_names, load_data, move_files, refresh_materialized_view, update_montlhyupdates_table_sqlalchemy, update_players_table_sqlalchemy
-from monthly_update.utils_update_data import extract_zip, replace_wrongcountry_code_with_right_country_code
 import bar_chart_race as bcr
-import warnings
-warnings.filterwarnings('ignore')
+from sqlalchemy import create_engine
+from monthly_update.utils_update_data import get_connection_url, update_montlhyupdates_table_sqlalchemy, refresh_materialized_view, delete_data
+from monthly_update.utils_update_data import add_column_date, clean_df, clean_names, replace_wrongcountry_code_with_right_country_code, check_column, check_country_code, load_data, update_players_table_sqlalchemy
 
 ###################################################
 # Set up the variables
 ###################################################
 
-folder_path = r'C:\Users\oscah\Documents\chess rating analytics project\data\current month'
-zip_files = [f for f in os.listdir(folder_path) if f.endswith('.zip')]
 url_database = get_connection_url()
 engine = create_engine(url_database)
-print(url_database)
 
 ###################################################
-# Execution
+# Load txt file into a dataframe
 ###################################################
 
-if len(zip_files) == 1:    
-    extract_zip(zip_files=zip_files, folder_path=folder_path)
-    txt_file = zip_files[0][:-3]+'txt'
-    txt_file_path = os.path.join(folder_path, txt_file)
-    # Read the txt file and load it into a dataframe
-    widths = [15, 61, 4, 3, 6, 4, 15, 5, 6, 4, 3, 5, 7]
-    df = pd.read_fwf(txt_file_path, widths=widths)
-    print('The txt file have been loaded into a dataframe')
-    # Get only the important columns and rename them
-    columns = ["ID","Name","Fed","Sex","Title","Number_of_games","B-day","activity_status",'Rating','Year','Month']
-    rating_column = [item for item in df.columns if re.search(r'\d', item)]
-    columns_to_get = ['ID Number','Name','Fed','Sex','Tit','Gms','B-day','Flag']
-    columns_to_get.extend(rating_column)
-    df = df[columns_to_get]
-    df = df.rename(columns={"ID Number": "ID", "Tit": "Title","Gms":"Number_of_games","Flag":"activity_status",rating_column[0]:'Rating'})
-    df_sorted = df.sort_values(['Fed', 'Rating'], ascending=[True, False])
-    # Get the top 100 players for each country
-    top_players = df_sorted.groupby('Fed').head(100)    
-    top_players = add_column_date(top_players, rating_column)
-    top_players = clean_df(top_players)
-    top_players = clean_names(top_players)
-    top_players.loc[top_players['B-day'].astype('str').str.len() != 4,'B-day']=df['B-day'].median()
-    top_players = replace_wrongcountry_code_with_right_country_code(top_players)
-    print('The dataframe contains the top 100 players for each country with the relevant columns')
-    check_column(top_players, 'ID', is_numeric=True, min_length=6, max_length=9)
-    check_column(top_players, 'Name', contains_no_numbers=True)
-    check_column(top_players, 'Fed', contains_no_numbers=True, min_length=3, max_length=3)
-    check_column(top_players, 'Sex', contains_no_numbers=True, min_length=1, max_length=1)
-    check_column(top_players, 'Title', contains_no_numbers=True, min_length=2, max_length=3)
-    check_column(top_players, 'Number_of_games', is_numeric=True, min_length=1, max_length=2)
-    check_column(top_players, 'B-day', is_numeric=True, min_length=4, max_length=4)
-    check_column(top_players, 'activity_status', contains_no_numbers=True, min_length=1, max_length=3)
-    check_column(top_players, 'Rating', is_numeric=True, min_length=4, max_length=4)
-    check_country_code(top_players)
+# Read the txt file and load it into a dataframe
+txt_file_path= [f for f in os.listdir('current_month') if f.endswith('.txt')][0]
+print(txt_file_path)
+txt_file_path = os.path.join('current_month', txt_file_path)
+print(txt_file_path)
+widths = [15, 61, 4, 3, 6, 4, 15, 5, 6, 4, 3, 5, 7]
+df = pd.read_fwf(txt_file_path, widths=widths, dtype = {'ID Number':str})
+print('The txt file have been loaded into a dataframe')
 
-elif len(zip_files) == 0:
-    print('No zip file found in the folder')  
-    
+###################################################
+# Data Cleaning
+###################################################
+# Get only the important columns and rename them
+columns = ["ID","Name","Fed","Sex","Title","Number_of_games","B-day","activity_status",'Rating','Year','Month']
+rating_column = [item for item in df.columns if re.search(r'\d', item)]
+columns_to_get = ['ID Number','Name','Fed','Sex','Tit','Gms','B-day','Flag']
+columns_to_get.extend(rating_column)
+df = df[columns_to_get]
+df = df.rename(columns={"ID Number": "ID", "Tit": "Title","Gms":"Number_of_games","Flag":"activity_status",rating_column[0]:'Rating'})
+df_sorted = df.sort_values(['Fed', 'Rating'], ascending=[True, False])
+print('The important columns have been selected and renamed')
+
+# Get the top 100 players for each country
+top_players = df_sorted.groupby('Fed').head(100)
+print('The top 100 strongest players by country have been selected and stored into the "top_players" dataframe')
+
+# Add Column date    
+top_players = add_column_date(top_players, rating_column)
+print('The column date has been added to "top_players"')
+
+# Data Cleaning
+# -> Remove null values from 'ID','Name','Fed','Sex','B-day','Rating'
+# -> Fill null values of the column Title with "NT"
+# -> Fill null values of the activity_status with "a"
+# -> Fill null values of the activity_status with "a"
+
+top_players = clean_df(top_players)
+print("Remove null values from 'ID','Name','Fed','Sex','B-day','Rating'")
+print('Fill null values of the column Title with "NT"')
+print('Fill null values of the activity_status with "a"')
+print('Fill null values of the activity_status with "a"')
+
+#Data Cleaning column name
+# Extract name part before numbers or parentheses
+# Clean trailing spaces and special chars
+top_players = clean_names(top_players)
+print("Clean players' names")
+
+# Fill the missing values in the B-day column with the median value
+top_players.loc[top_players['B-day'].astype('str').str.len() != 4,'B-day']=df['B-day'].median()
+print("Fill the missing values in the B-day column with the median value")
+
+# Replace wrong country code with the right country code
+top_players = replace_wrongcountry_code_with_right_country_code(top_players)
+print('Replace wrong country code with the right country code')
+
+# End message
+print('The dataframe contains the top 100 players for each country with the relevant columns')
+
+print("Checking the data...")
+# Check the data
+# -> ID must be numeric and have a length between 6 and 9
+print("ID must be numeric and have a length between 6 and 9")
+check_column(top_players, 'ID', is_numeric=True, min_length=6, max_length=9)
+# -> Name must not contain numbers
+print("Name must not contain numbers")
+check_column(top_players, 'Name', contains_no_numbers=True)
+# -> Fed must not contain numbers and have a length of 3
+print("Fed must not contain numbers and have a length of 3")
+check_column(top_players, 'Fed', contains_no_numbers=True, min_length=3, max_length=3)
+# Sex must be a single character and not contain numbers
+print("Sex must be a single character and not contain numbers")
+check_column(top_players, 'Sex', contains_no_numbers=True, min_length=1, max_length=1)
+# Title must not contain numbers and have a length between 2 and 3
+print("Title must not contain numbers and have a length between 2 and 3")
+check_column(top_players, 'Title', contains_no_numbers=True, min_length=2, max_length=3)
+# Number_of_games must be numeric and have a length between 1 and 2
+print("Number_of_games must be numeric and have a length between 1 and 2")
+check_column(top_players, 'Number_of_games', is_numeric=True, min_length=1, max_length=2)
+# B-day must be numeric and have a length of 4
+print("B-day must be numeric and have a length of 4")
+check_column(top_players, 'B-day', is_numeric=True, min_length=4, max_length=4)
+# activity_status must not contain numbers and have a length of 1
+print("activity_status must not contain numbers and have a length of 1")
+check_column(top_players, 'activity_status', contains_no_numbers=True, min_length=1, max_length=1)
+# Rating must be numeric and have a length of 4
+print("Rating must be numeric and have a length of 4")
+check_column(top_players, 'Rating', is_numeric=True, min_length=4, max_length=4)
+# Check the country code
+check_country_code(top_players)
+
 ###################################################
 # Load data into the database
 ###################################################
@@ -69,7 +116,7 @@ print(f'the shape of the dataframe is {top_players.shape}')
 top_players['ID'] = top_players['ID'].astype('str')
 
 ###################################################
-# Players table
+# players table
 ###################################################
 
 query = """
@@ -77,7 +124,7 @@ query = """
     FROM players p ;
     """
 current_unique_ids = load_data(query)
-print(current_unique_ids.head())
+print(f'The number of current unique Ids in table player is {current_unique_ids.shape[0]}')
 current_unique_ids = current_unique_ids['id'].to_list()
 id_to_add = top_players[~top_players['ID'].isin(current_unique_ids)]
 print(f'The number of rows to add is {id_to_add.shape[0]}')
@@ -101,18 +148,14 @@ refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine
 # save files
 ###################################################
 
-source_path = r'C:\Users\oscah\Documents\chess rating analytics project\data\current month'
-destination_path_zip = r"C:\Users\oscah\Documents\chess rating analytics project\data\01 raw data"
-destination_path_txt = r"C:\Users\oscah\Documents\chess rating analytics project\data\02 semi raw data txt_files"
-zip_files = [f for f in os.listdir(source_path) if f.endswith('.zip')]
-txt_files = [f for f in os.listdir(source_path) if f.endswith('.txt')]
-
-move_files(source_path, destination_path_zip, zip_files)
-move_files(source_path, destination_path_txt, txt_files)
-
+# Save the dataframe into a csv file
 dataset_date = top_players['Date'].dt.strftime("%Y-%m").unique()[0]
-top_players_path = r"C:\Users\oscah\Documents\chess rating analytics project\data\03 csv files\open_" + dataset_date + ".csv"
-top_players.to_csv(top_players_path, index= False)
+print(dataset_date)
+folder = "current_month"
+os.makedirs(folder, exist_ok=True)
+top_players_path = os.path.join(folder, "open.csv")
+top_players.to_csv(top_players_path, index=False)
+print('The dataframe has been saved into a csv file')
 
 ###################################################
 # update bar chart race - video
@@ -134,13 +177,14 @@ pivot_df = df.pivot_table(
     values="rating"
 )
 pivot_df.shape
-
-import bar_chart_race as bcr
-
+print('The pivot table has been created')
+folder = "bar_chart_race_video"
+os.makedirs(folder, exist_ok=True)
+video_path = os.path.join(folder, "top_5_chess_players_over_time.mp4")
 # Generate the animation
 anim = bcr.bar_chart_race(
     df=pivot_df,
-    title='Top 5 Chess Players Over The last 10 Years',
+    title='Top 5 Chess Players Over The last 5 Years',
     orientation='h',
     sort='desc',
     n_bars=5,
@@ -152,5 +196,19 @@ anim = bcr.bar_chart_race(
     bar_size=.7,
     period_label={'x': .4, 'y': .93},
     filter_column_colors=False,
-    filename='top_5_chess_players_over_time.mp4' 
+    filename=video_path
 )
+print('The animation has been generated')
+
+# #########################################################
+# # Delete Data
+# #########################################################
+
+# delete_data(table_name='montlhyupdates', where_condition="ongoing_date='2025-03-01'")
+# delete_data(table_name='players', where_condition="id in ('00000001', '00000002','0000003','0000004')")
+
+# ###################################################
+# # refresh the materialized views
+# ###################################################
+
+# refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine)
