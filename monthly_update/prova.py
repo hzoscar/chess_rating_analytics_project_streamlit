@@ -199,15 +199,16 @@ anim = bcr.bar_chart_race(
     filename=video_path
 )
 print('The animation has been generated')
-#########################################################
-# Delete Data
-#########################################################
 
-delete_data(table_name='montlhyupdates', where_condition="ongoing_date='2025-03-01'")
-delete_data(table_name='players', where_condition="id in ('00000001', '00000002','0000003','0000004')")
+# #########################################################
+# # Delete Data
+# #########################################################
 
-###################################################
-# refresh the materialized views
-###################################################
+# delete_data(table_name='montlhyupdates', where_condition="ongoing_date='2025-03-01'")
+# delete_data(table_name='players', where_condition="id in ('00000001', '00000002','0000003','0000004')")
 
-refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine)
+# ###################################################
+# # refresh the materialized views
+# ###################################################
+
+# refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine)
