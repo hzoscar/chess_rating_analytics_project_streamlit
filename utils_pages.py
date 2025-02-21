@@ -1320,10 +1320,10 @@ def filters_for_comparison_tool(country: str,
 
 def filters_for_metrics_comparison_tool(first_country: str,
                                         second_country: str,
-                                selected_gender: list,
-                                selected_activity_Status: list,
-                                selected_title: list,
-                                selected_age: list) -> list:
+                                        selected_gender: list,
+                                        selected_activity_Status: list,
+                                        selected_title: list,
+                                        selected_age: list) -> list:
     
     filters = [f"country in ('{first_country}','{second_country}')"]
     
