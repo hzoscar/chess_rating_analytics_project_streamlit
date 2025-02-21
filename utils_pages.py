@@ -180,10 +180,10 @@ def get_country_query_for_bubble_chart(filters:list) -> str:
     query = f"""
     SELECT 
     c.country,
-    mu.Ongoing_date AS "date",    
-    COUNT(CASE WHEN mu.title != 'NT' THEN 1 END) AS "count of titled players",
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
-    COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
+    muomv.Ongoing_date AS "date",    
+    COUNT(CASE WHEN muomv.title != 'NT' THEN 1 END) AS "count of titled players",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY muomv.rating) AS "median of rating",
+    COUNT(CASE WHEN muomv.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM montlhyupdate_open_players_with_age_group_mv muomv
     LEFT JOIN countries c ON muomv.fed = c.code
     LEFT JOIN players p ON muomv.ID = p.ID"""
