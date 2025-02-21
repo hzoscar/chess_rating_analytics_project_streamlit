@@ -59,7 +59,7 @@ st.markdown(
 st.markdown(
     f"🌟 **Top 5 Chess Countries** (based on 3 key metrics). **Last update: {max_date_right_format}** ")
 
-df = df[df['date']== max_date][['country','count of Gm',	'count of titled players',	'median of rating']].head()
+df = df[df['date']== max_date][['country','count of Gm', 'count of titled players',	'median of rating']].head()
 st.dataframe(df, hide_index=True)  
 
 # ---- INTERACTIVE BUBBLE CHART INTRO ----  
