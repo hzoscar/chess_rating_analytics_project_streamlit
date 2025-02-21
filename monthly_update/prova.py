@@ -151,9 +151,9 @@ refresh_materialized_view("montlhyupdate_open_players_with_age_group_mv", engine
 # Save the dataframe into a csv file
 dataset_date = top_players['Date'].dt.strftime("%Y-%m").unique()[0]
 print(dataset_date)
-#folder = "current_month"
-#os.makedirs(folder, exist_ok=True)
-#top_players_path = os.path.join(folder, "open.csv")
+folder = "current_month"
+os.makedirs(folder, exist_ok=True)
+top_players_path = os.path.join(folder, "open.csv")
 top_players.to_csv("open.csv", index=False)
 print('The dataframe has been saved into a csv file')
 
