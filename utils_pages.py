@@ -175,7 +175,7 @@ def get_continent_query_for_choropleth(continent:str) -> str:
 """
     return query
 
-def get_country_query_for_bubble_chart(country_1:str, country_2:str) -> str:
+def get_country_query_for_bubble_chart(filters:list) -> str:
     
     query = f"""
     SELECT 
@@ -185,8 +185,9 @@ def get_country_query_for_bubble_chart(country_1:str, country_2:str) -> str:
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY mu.rating) AS "median of rating",
     COUNT(CASE WHEN mu.title = 'GM' THEN 1 END) AS "count of Gm"
     FROM MontlhyUpdates mu
-    LEFT JOIN countries c ON mu.fed = c.code    
-    WHERE country in ('{country_1}','{country_2}')
+    LEFT JOIN countries c ON mu.fed = c.code """
+    query += " WHERE " + " AND ".join(filters)    
+    query += """
     
     GROUP BY c.country, mu.Ongoing_date
     ORDER BY mu.Ongoing_date ASC,"median of rating" DESC
@@ -1262,6 +1263,69 @@ def filters_for_comparison_tool(country: str,
                                 selected_age: list) -> list:
     
     filters = ["EXTRACT(MONTH FROM muomv.ongoing_date) = (SELECT get_last_month())",f"c.country = '{country}'"]
+    
+    if selected_gender:
+        
+        if len(selected_gender) > 1:
+        
+            filters.append(f"sex in {tuple(selected_gender)}")
+            
+        else:
+            filters.append(f"sex in ('{selected_gender[0]}')")
+
+    if selected_activity_Status:
+        
+        if len(selected_activity_Status) > 1:
+        
+            filters.append(f"activity_status in {tuple(selected_activity_Status)}")
+            
+        else:
+            filters.append(f"activity_status in ('{selected_activity_Status[0]}')")
+        
+    other_titles_list = ['CM','FM','IM','WCM','WFM','WGM','WH','WIM'] 
+            
+    if selected_title:
+        
+        if 'other_titles' in selected_title:
+            
+            if len(selected_title) == 1:
+                    
+                filters.append(f"title in {tuple(other_titles_list)}")
+
+            else:
+                option_to_consider_title = [i for i in selected_title if i != 'other_titles']
+                option_to_consider_title.extend(other_titles_list)
+                
+                filters.append(f"title in {tuple(option_to_consider_title)}")
+                
+        else:
+            
+            if len(selected_title) > 1:
+        
+                filters.append(f"title in {tuple(selected_title)}")
+            
+            else:
+                filters.append(f"title in ('{selected_title[0]}')")
+
+    if selected_age:
+        
+        if len(selected_age) > 1:
+        
+            filters.append(f"age_category in {tuple(selected_age)}")
+            
+        else:
+            filters.append(f"age_category in ('{selected_age[0]}')")     
+
+    return filters
+
+def filters_for_metrics_comparison_tool(first_country: str,
+                                        second_country: str,
+                                selected_gender: list,
+                                selected_activity_Status: list,
+                                selected_title: list,
+                                selected_age: list) -> list:
+    
+    filters = [f"country in ('{first_country}','{second_country}')"]
     
     if selected_gender:
         

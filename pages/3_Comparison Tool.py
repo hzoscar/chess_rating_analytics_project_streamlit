@@ -19,6 +19,7 @@ from utils_pages import title_line_chart
 from utils_pages import age_group_heat_map
 from utils_pages import rating_violin_chart_for_comparison_tool
 from utils_pages import get_metrics_comparison
+from utils_pages import filters_for_metrics_comparison_tool
 
 st.set_page_config(layout="wide")
 # Title and subtitle
@@ -64,7 +65,13 @@ filters_second_country = filters_for_comparison_tool(country=second_country,
                                                     selected_title=selected_title,
                                                     selected_age=selected_age)
 
-query_comparison_country_bubble_chart = get_country_query_for_bubble_chart(first_country, second_country)
+filters_metrics = filters_for_metrics_comparison_tool(country=second_country,
+                                                    selected_gender=selected_gender,
+                                                    selected_activity_Status=selected_activity_Status,
+                                                    selected_title=selected_title,
+                                                    selected_age=selected_age)
+
+query_comparison_country_bubble_chart = get_country_query_for_bubble_chart(filters=filters_metrics)
 first_query = get_country_query_for_comparison_tool(filters_first_country)
 second_query = get_country_query_for_comparison_tool(filters_second_country)
 rating_query_first_country = get_rating_query(filters=filters_first_country)
