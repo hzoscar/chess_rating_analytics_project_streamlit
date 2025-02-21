@@ -335,25 +335,43 @@ def get_count_unique_countries(filters:list) -> int:
     
     return count_unique_countries
 
-def get_metrics_comparison(query:str,
-                           first_country:str,
-                           second_country:str):
-    
+def get_metrics_comparison(query: str,
+                           first_country: str,
+                           second_country: str):
+
     df_metrics = load_data(query)
     df_metrics['date'] = pd.to_datetime(df_metrics['date'])
     last_date = df_metrics['date'].max()
     df_metrics = df_metrics[df_metrics['date'] == last_date]
 
-    first_country_count_titled_players = df_metrics[df_metrics['country'] == first_country]['count of titled players'].values[0]
-    first_country_median_rating = df_metrics[df_metrics['country'] == first_country]['median of rating'].values[0]
-    first_country_count_gms = df_metrics[df_metrics['country'] == first_country]['count of Gm'].values[0]
-    
-    second_country_count_titled_players = df_metrics[df_metrics['country'] == second_country]['count of titled players'].values[0]
-    second_country_median_rating = df_metrics[df_metrics['country'] == second_country]['median of rating'].values[0]
-    second_country_count_gms = df_metrics[df_metrics['country'] == second_country]['count of Gm'].values[0]
-    
-    return last_date, first_country_count_titled_players, first_country_median_rating, first_country_count_gms, second_country_count_titled_players, second_country_median_rating, second_country_count_gms
-    
+    # Retrieve metrics for the first country
+    first_country_data = df_metrics[df_metrics['country'] == first_country]
+    if not first_country_data.empty:
+        first_country_count_titled_players = first_country_data['count of titled players'].values[0]
+        first_country_median_rating = first_country_data['median of rating'].values[0]
+        first_country_count_gms = first_country_data['count of Gm'].values[0]
+    else:
+        print(f"No data found for first country: {first_country}")
+        first_country_count_titled_players = 0
+        first_country_median_rating = 0
+        first_country_count_gms = 0
+
+    # Retrieve metrics for the second country
+    second_country_data = df_metrics[df_metrics['country'] == second_country]
+    if not second_country_data.empty:
+        second_country_count_titled_players = second_country_data['count of titled players'].values[0]
+        second_country_median_rating = second_country_data['median of rating'].values[0]
+        second_country_count_gms = second_country_data['count of Gm'].values[0]
+    else:
+        print(f"No data found for second country: {second_country}")
+        second_country_count_titled_players = 0
+        second_country_median_rating = 0
+        second_country_count_gms = 0
+
+    return (last_date,
+            first_country_count_titled_players, first_country_median_rating, first_country_count_gms,
+            second_country_count_titled_players, second_country_median_rating, second_country_count_gms)
+
 def get_avg_rating_player_current_year(player_selected:str) -> pd.DataFrame:
     query = f"""
     SELECT avg(rating)
