@@ -1,5 +1,0 @@
-ID Number      Name                                                         Fed Sex Tit  WTit OTit           FOA MAR25 Gms K  B-day Flag
-00000001       A B C Jobair, Hossai1                                        BAN M                                1750  0   40 1998  i   
-00000002       A B C Jobair, Hossai2                                        BAN F                                1750  0   40 1998     
-0000003        A b d, Anton3                                                SWE M   IM                           2325  1   10 1972   
-0000004        A b d, Anton4                                                SWE F   WIM                          2325  10  10 1972
