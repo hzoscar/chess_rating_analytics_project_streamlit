@@ -178,10 +178,13 @@ pivot_df = df.pivot_table(
 )
 pivot_df.shape
 print('The pivot table has been created')
+folder = "bar_chart_race_video"
+os.makedirs(folder, exist_ok=True)
+video_path = os.path.join(folder, "top_5_chess_players_over_time.mp4")
 # Generate the animation
 anim = bcr.bar_chart_race(
     df=pivot_df,
-    title='Top 5 Chess Players Over The last 10 Years',
+    title='Top 5 Chess Players Over The last 5 Years',
     orientation='h',
     sort='desc',
     n_bars=5,
@@ -193,7 +196,7 @@ anim = bcr.bar_chart_race(
     bar_size=.7,
     period_label={'x': .4, 'y': .93},
     filter_column_colors=False,
-    filename='top_5_chess_players_over_time.mp4' 
+    filename=video_path
 )
 print('The animation has been generated')
 #########################################################
